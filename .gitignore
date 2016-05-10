@@ -238,3 +238,8 @@ _Pvt_Extensions
 #dia
 *.dia~
 
+*.html
+*.png
+*.filters
+*.pdf
+*.css
