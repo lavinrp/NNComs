@@ -9,6 +9,7 @@
 #include <Windows.h>
 #endif
 
+//Standard TS3 includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,6 +21,11 @@
 #include "teamspeak/clientlib_publicdefinitions.h"
 #include "ts3_functions.h"
 #include "plugin.h"
+
+//Other C includes
+#include <stdbool.h>
+
+//Custom includes
 
 static struct TS3Functions ts3Functions;
 
@@ -148,6 +154,80 @@ void ts3plugin_shutdown() {
 		pluginID = NULL;
 	}
 }
+
+/******************************NNC required function*******************************/
+
+/*getNNCPlayerData
+returns all required player data for the given client ID from NNComs
+@param clientID: id of the client whose voice will be changed*/
+void getNncSoundData(anyID clientID, int* sources, float** leftVolumes, float** rightVolumes, short** distortions) {
+	//TODO: fill getNncSoundData stub
+	return;
+}
+
+/*isNncMuted
+Mutes the client if it should be muted. Returns true if the client is muted. Returns false otherwise
+@param clientID: the ID of the client whose muted status is being checked
+@return: true if the client is muted by NNC false otherwise*/
+bool isNncMuted(anyID clientID) {
+	//TODO: fill isNncMuted stub
+	return false;
+}
+
+void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
+	//initialize ts values
+	int leftHeadhponeChannel = 0;
+	int rightHeadphoneChannel = 0;
+
+	//end early if no sound can come from selected client
+	if (isNncMuted(clientID)) {
+		return;
+	}
+
+	//Initialize NNC sound values
+	int sources = 0;
+	float* leftVolumes = NULL;
+	float* rightVolumes = NULL;
+	short* distortions = NULL;
+
+	//Get sound modification values from NNC
+	getNncSoundData(clientID, &sources, &leftVolumes, &rightVolumes, &distortions);
+
+
+	//find correct speakers
+	for (int i = 0; i < channels; i++) {
+		switch (channelSpeakerArray[i])
+		{
+		case SPEAKER_HEADPHONES_LEFT:
+			leftHeadhponeChannel = i;
+			break;
+		case SPEAKER_HEADPHONES_RIGHT:
+			rightHeadphoneChannel = i;
+			break;
+		default:
+			////get myID
+			//anyID myID;
+			//if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+			//	ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+			//	return;
+			//}
+
+			////USE THIS FOR DEBUG IF YOU NEED IT
+			//if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, "run", myID, NULL) != ERROR_ok) {
+			//	ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+			//}
+			break;
+		}
+	}
+
+	for (int i = leftHeadhponeChannel; i < sampleCount * channels; i += channels) {
+		samples[i] = (short)(samples[i] * leftVolumes[0]);
+	}
+	for (int i = rightHeadphoneChannel; i < sampleCount * channels; i += channels) {
+		samples[i] = (short)(samples[i] * rightVolumes[0]);
+	}
+}
+
 
 /****************************** Optional functions ********************************/
 /*
@@ -839,9 +919,6 @@ void ts3plugin_onSoundDeviceListChangedEvent(const char* modeID, int playOrCap) 
 }
 
 void ts3plugin_onEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
-}
-
-void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 }
 
 void ts3plugin_onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
