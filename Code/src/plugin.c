@@ -159,8 +159,12 @@ void ts3plugin_shutdown() {
 
 /*getNNCPlayerData
 returns all required player data for the given client ID from NNComs
-@param clientID: id of the client whose voice will be changed*/
-void getNncSoundData(anyID clientID, int* sources, float** leftVolumes, float** rightVolumes, short** distortions) {
+@param clientID: id of the client whose voice will be changed
+@param sources: The number of audio sources to emulate. The size of the leftVolumes, rightVolumes and distortions arrays
+@param leftVolumes: array of volumes to be applied to the left headphone channel for each emulated audio source
+@param rightVolumes: array of volumes to be applied to the right headphone channel for each emulated audio source
+@param distortions: array of audio distortions to apply to each emulated audio source*/
+void getNncSoundData(anyID clientID, int sources, float* leftVolumes, float* rightVolumes, short* distortions) {
 	//TODO: fill getNncSoundData stub
 	return;
 }
@@ -173,6 +177,27 @@ bool isNncMuted(anyID clientID) {
 	//TODO: fill isNncMuted stub
 	return false;
 }
+
+/*modifySamples
+applies volume and distortion modifications to the passed samples
+@param channels: number of channels in the sample array
+@param channelToChange: the channel to modify
+@param samples: array of samples to modify
+@param sampleCount: total number of samples in the samples array
+@param sources: The number of audio sources to emulate. The size of the volumes and distortions arrays
+@param volumes: array of volumes for each emulated audio source
+@param distortions: array of audio distortions to apply to each emulated audio source*/
+void modifySamples(int channels, int channelToChange, short* samples, int sampleCount, int sources, float* volumes, short* distortions) {
+	for (int i = channelToChange; i < sampleCount * channels; i += channels) {
+		short finalSample = 0;
+		short currentSample = samples[i];
+		for (unsigned int j = 0; j < sources; j++) {
+			finalSample += (short)((currentSample + distortions[j]) * volumes[j]);
+		}
+		samples[i] = finalSample;
+	}
+}
+
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 	//initialize ts values
@@ -193,7 +218,6 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 	//Get sound modification values from NNC
 	getNncSoundData(clientID, &sources, &leftVolumes, &rightVolumes, &distortions);
 
-
 	//find correct speakers
 	for (int i = 0; i < channels; i++) {
 		switch (channelSpeakerArray[i])
@@ -205,6 +229,7 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 			rightHeadphoneChannel = i;
 			break;
 		default:
+			/*
 			////get myID
 			//anyID myID;
 			//if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
@@ -215,18 +240,17 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 			////USE THIS FOR DEBUG IF YOU NEED IT
 			//if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, "run", myID, NULL) != ERROR_ok) {
 			//	ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-			//}
+			//}*/
 			break;
 		}
 	}
 
-	for (int i = leftHeadhponeChannel; i < sampleCount * channels; i += channels) {
-		samples[i] = (short)(samples[i] * leftVolumes[0]);
-	}
-	for (int i = rightHeadphoneChannel; i < sampleCount * channels; i += channels) {
-		samples[i] = (short)(samples[i] * rightVolumes[0]);
-	}
+	//apply audio changes to left and right ears individually
+	modifySamples(channels, leftHeadhponeChannel, samples, sampleCount, sources, leftVolumes, distortions);
+	modifySamples(channels, rightHeadphoneChannel, samples, sampleCount, sources, rightVolumes, distortions);
+
 }
+
 
 
 /****************************** Optional functions ********************************/
