@@ -216,7 +216,7 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 	short* distortions = NULL;
 
 	//Get sound modification values from NNC
-	getNncSoundData(clientID, &sources, &leftVolumes, &rightVolumes, &distortions);
+	getNncSoundData(clientID, sources, leftVolumes, rightVolumes, distortions);
 
 	//find correct speakers
 	for (int i = 0; i < channels; i++) {
