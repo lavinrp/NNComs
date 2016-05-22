@@ -25,7 +25,13 @@
 //Other C includes
 #include <stdbool.h>
 
+//Other Cpp includes
+#include <sstream>
+
 //Custom includes
+#include "NncToTs.h"
+
+using namespace std;
 
 static struct TS3Functions ts3Functions;
 
@@ -71,20 +77,20 @@ const char* ts3plugin_name() {
 	/* TeamSpeak expects UTF-8 encoded characters. Following demonstrates a possibility how to convert UTF-16 wchar_t into UTF-8. */
 	static char* result = NULL;  /* Static variable so it's allocated only once */
 	if(!result) {
-		const wchar_t* name = L"Test Plugin";
+		const wchar_t* name = L"NNComs";
 		if(wcharToUtf8(name, &result) == -1) {  /* Convert name into UTF-8 encoded result */
-			result = "Test Plugin";  /* Conversion failed, fallback here */
+			result = "NNComs";  /* Conversion failed, fallback here */
 		}
 	}
 	return result;
 #else
-	return "Test Plugin";
+	return "NNComs";
 #endif
 }
 
 /* Plugin version */
 const char* ts3plugin_version() {
-    return "1.2";
+    return "0.1";
 }
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
@@ -95,13 +101,13 @@ int ts3plugin_apiVersion() {
 /* Plugin author */
 const char* ts3plugin_author() {
 	/* If you want to use wchar_t, see ts3plugin_name() on how to use */
-    return "TeamSpeak Systems GmbH";
+    return "NihonNukite";
 }
 
 /* Plugin description */
 const char* ts3plugin_description() {
 	/* If you want to use wchar_t, see ts3plugin_name() on how to use */
-    return "This plugin demonstrates the TeamSpeak 3 client plugin architecture.";
+    return "Local and Radio communication in video games.";
 }
 
 /* Set TeamSpeak 3 callback functions */
@@ -157,26 +163,6 @@ void ts3plugin_shutdown() {
 
 /******************************NNC required function*******************************/
 
-/*getNNCPlayerData
-returns all required player data for the given client ID from NNComs
-@param clientID: id of the client whose voice will be changed
-@param sources: The number of audio sources to emulate. The size of the leftVolumes, rightVolumes and distortions arrays
-@param leftVolumes: array of volumes to be applied to the left headphone channel for each emulated audio source
-@param rightVolumes: array of volumes to be applied to the right headphone channel for each emulated audio source
-@param distortions: array of audio distortions to apply to each emulated audio source*/
-void getNncSoundData(anyID clientID, int sources, float* leftVolumes, float* rightVolumes, short* distortions) {
-	//TODO: fill getNncSoundData stub
-	return;
-}
-
-/*isNncMuted
-Mutes the client if it should be muted. Returns true if the client is muted. Returns false otherwise
-@param clientID: the ID of the client whose muted status is being checked
-@return: true if the client is muted by NNC false otherwise*/
-bool isNncMuted(anyID clientID) {
-	//TODO: fill isNncMuted stub
-	return false;
-}
 
 /*modifySamples
 applies volume and distortion modifications to the passed samples
@@ -191,7 +177,8 @@ void modifySamples(int channels, int channelToChange, short* samples, int sample
 	for (int i = channelToChange; i < sampleCount * channels; i += channels) {
 		short finalSample = 0;
 		short currentSample = samples[i];
-		for (unsigned int j = 0; j < sources; j++) {
+
+		for (int j = 0; j < sources; j++) {
 			finalSample += (short)((currentSample + distortions[j]) * volumes[j]);
 		}
 		samples[i] = finalSample;
@@ -201,53 +188,66 @@ void modifySamples(int channels, int channelToChange, short* samples, int sample
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 	//initialize ts values
-	int leftHeadhponeChannel = 0;
-	int rightHeadphoneChannel = 0;
+	NncToTs nncData(clientID);
 
 	//end early if no sound can come from selected client
-	if (isNncMuted(clientID)) {
+	if (nncData.isNncMuted()) {
 		return;
 	}
 
 	//Initialize NNC sound values
-	int sources = 0;
-	float* leftVolumes = NULL;
+	/*float* leftVolumes = NULL;
 	float* rightVolumes = NULL;
-	short* distortions = NULL;
+	short* distortions = NULL;*/
+
+	/*float leftVolumes[1] = {.1};
+	float rightVolumes[1] = {0};
+	short distortions[1] = {0};
+*/
 
 	//Get sound modification values from NNC
-	getNncSoundData(clientID, &sources, &leftVolumes, &rightVolumes, &distortions);
+	nncData.getNncSoundData();
+	int sources = nncData.getSources();
+	float* leftVolumes = nncData.getLeftVolumes();
+	float* rightVolumes = nncData.getRightVolumes();
+	short* distortions = nncData.getDistortions();
 
-	//find correct speakers
-	for (int i = 0; i < channels; i++) {
-		switch (channelSpeakerArray[i])
-		{
-		case SPEAKER_HEADPHONES_LEFT:
-			leftHeadhponeChannel = i;
-			break;
-		case SPEAKER_HEADPHONES_RIGHT:
-			rightHeadphoneChannel = i;
-			break;
-		default:
-			/*
-			////get myID
-			//anyID myID;
-			//if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
-			//	ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-			//	return;
-			//}
+	//Channel id of left ear
+	const int LEFT_CHANNEL = 0;
+	//Channel id of right ear
+	const int RIGHT_CHANNEL = 1;
+	//samples between next value of each channel
+	const int CHANNEL_SPACE = 2;
+	
+	//get myID
+	//anyID myID;
+	//if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+	//	ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	//	return;
+	//}
 
-			////USE THIS FOR DEBUG IF YOU NEED IT
-			//if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, "run", myID, NULL) != ERROR_ok) {
-			//	ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-			//}*/
-			break;
-		}
+	////USE THIS FOR DEBUG IF YOU NEED IT
+	//stringstream testOutput;
+	//testOutput << "right volume: " << rightVolumes[0] << "\n" << "left volume: " << leftVolumes[0];
+	//if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
+	//	ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	//}
+
+	/*for (int i = LEFT_CHANNEL; i < sampleCount * channels; i += CHANNEL_SPACE) {
+		samples[i] = (short)(samples[i] * 0.0f);
 	}
+	for (int i = RIGHT_CHANNEL; i < sampleCount * channels; i += CHANNEL_SPACE) {
+		samples[i] = (short)(samples[i] * 0.1f);
+	}*/
 
 	//apply audio changes to left and right ears individually
-	modifySamples(channels, leftHeadhponeChannel, samples, sampleCount, sources, leftVolumes, distortions);
-	modifySamples(channels, rightHeadphoneChannel, samples, sampleCount, sources, rightVolumes, distortions);
+	modifySamples(CHANNEL_SPACE, LEFT_CHANNEL, samples, sampleCount, sources, leftVolumes, distortions);
+	modifySamples(CHANNEL_SPACE, RIGHT_CHANNEL, samples, sampleCount, sources, rightVolumes, distortions);
+
+	//must free memory from getNncSoundData
+	/*delete[] leftVolumes;
+	delete[] rightVolumes;
+	delete[] distortions;*/
 
 }
 
@@ -534,7 +534,7 @@ void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) 
 
 /* Static title shown in the left column in the info frame */
 const char* ts3plugin_infoTitle() {
-	return "Test plugin info";
+	return "NNComs";
 }
 
 /*
