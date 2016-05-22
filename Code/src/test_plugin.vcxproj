@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="NncToTs.cpp" />
     <ClCompile Include="plugin.cpp" />
+    <ClCompile Include="Point3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\plugin_definitions.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="..\include\ts3_functions.h" />
     <ClInclude Include="NncToTs.h" />
     <ClInclude Include="plugin.h" />
+    <ClInclude Include="Point3D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

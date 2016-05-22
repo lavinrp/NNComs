@@ -1,21 +1,27 @@
 #include "NncToTs.h"
 
 #pragma region Constructors / destructor
-NncToTs::NncToTs()
-{
+
+/*Default constructor for Nnc
+Sets all pointers to nullptr
+This should really never be used*/
+NncToTs::NncToTs() {
 	this->clientID = 0;
 	this->leftVolumes = nullptr;
 	this->rightVolumes = nullptr;
 	this->distortions = nullptr;
 }
 
+/*Constructor for NncToTs. Retrieves all relevant data for passed clientID.
+@param clientID: id of the client to retrieve data for*/
 NncToTs::NncToTs(anyID clientID) {
 	this->clientID = clientID;
 	this->getNncSoundData();
 }
 
-NncToTs::~NncToTs()
-{
+/*NncToTs Destructor. Frees all memory allocated in NncToTs. Will call delete
+on nullptr if default constructor was used and getnncSoundData was never called*/
+NncToTs::~NncToTs() {
 	delete[] leftVolumes;
 	delete[] rightVolumes;
 	delete[] distortions;
