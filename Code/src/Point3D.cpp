@@ -3,19 +3,35 @@
 using namespace std;
 
 #pragma region Constructors / destructor
+/*Default constructor for Point3D
+Creates a point at location 0,0,0*/
 Point3D::Point3D() {
 	this->x = 0;
 	this->y = 0;
 	this->z = 0;
 }
 
+/*Constructor for Point3D
+creates a point at the given x, y, and z locations
+@param x: x position
+@param y: y position
+@param z: z position*/
 Point3D::Point3D(double x, double y, double z) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 }
 
+/*Copy constructor for Point3D
+Creates a Point3D with the x, y, and z values of the passed Point3D
+@param other: Point3D to copy*/
+Point3D::Point3D(const Point3D& other) {
+	this->x = other.x;
+	this->y = other.y;
+	this->z = other.z;
+}
 
+/*destructor for Point3D*/
 Point3D::~Point3D() {
 }
 #pragma endregion
@@ -71,16 +87,35 @@ double Point3D::zDifference(const Point3D & other) const {
 
 
 #pragma region getters / setters
+/*getX
+returns the X position of this Point3D
+@returns: x*/
 double Point3D::getX() const {
 	return this->x;
 }
 
+/*getY
+returns the y position of this Point3D
+@returns: y*/
 double Point3D::getY() const {
 	return this->y;
 }
 
+/*getZ
+returns the z position of this Point3D
+@returns: z*/
 double Point3D::getZ() const {
 	return this->z;
 }
+
+/*Assignment operator
+assigns the values of this Point3D to those of the passed Point3D
+@param other: Point3D whose values will be copied.*/
+void Point3D::operator=(const Point3D& other) {
+	this->x = other.x;
+	this->y = other.y;
+	this->z = other.z;
+}
+
 #pragma endregion
 

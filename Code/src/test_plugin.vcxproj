@@ -143,6 +143,7 @@
     <ClCompile Include="NncToTs.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="Point3D.cpp" />
+    <ClCompile Include="VoiceSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\plugin_definitions.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="NncToTs.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="Point3D.h" />
+    <ClInclude Include="VoiceSource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
