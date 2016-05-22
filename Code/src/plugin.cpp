@@ -188,27 +188,29 @@ void modifySamples(int channels, int channelToChange, short* samples, int sample
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 	//initialize ts values
-	int leftHeadhponeChannel = 0;
-	int rightHeadphoneChannel = 0;
+	NncToTs nncData(clientID);
 
 	//end early if no sound can come from selected client
-	if (isNncMuted(clientID)) {
+	if (nncData.isNncMuted()) {
 		return;
 	}
 
 	//Initialize NNC sound values
-	int sources = 0;
 	/*float* leftVolumes = NULL;
 	float* rightVolumes = NULL;
 	short* distortions = NULL;*/
 
-	float leftVolumes[1] = {.1};
+	/*float leftVolumes[1] = {.1};
 	float rightVolumes[1] = {0};
 	short distortions[1] = {0};
-
+*/
 
 	//Get sound modification values from NNC
-	getNncSoundData(clientID, sources, leftVolumes, rightVolumes, distortions);
+	nncData.getNncSoundData();
+	int sources = nncData.getSources();
+	float* leftVolumes = nncData.getLeftVolumes();
+	float* rightVolumes = nncData.getRightVolumes();
+	short* distortions = nncData.getDistortions();
 
 	//Channel id of left ear
 	const int LEFT_CHANNEL = 0;
