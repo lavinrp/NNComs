@@ -1,20 +1,22 @@
 #pragma once
 #include "Point3D.h"
 
-class VoiceSource
+class VoiceSource : public Point3D
 {
 public:
 	//constructors / destructor
 	VoiceSource();
-	VoiceSource(const Point3D& position);
+	VoiceSource(double level);
+	VoiceSource(double x, double y, double z, double level);
+	VoiceSource(double x, double y, double z);
 	virtual ~VoiceSource();
 
 	//getters / setters
-	Point3D getPosition();
-	void setPosition(const Point3D& position);
-private:
-	Point3D position;
+	double getVoiceLevel();
+	void setVoiceLevel(double level);
 
+protected:
+	double voiceLevel;
 
 };
 

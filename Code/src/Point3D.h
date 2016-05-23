@@ -22,7 +22,7 @@ public:
 	double getZ() const;
 	void operator=(const Point3D& other);
 
-private:
+protected:
 	double x;
 	double y;
 	double z;

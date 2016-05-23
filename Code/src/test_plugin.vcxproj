@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="NncToTs.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="Point3D.cpp" />
     <ClCompile Include="VoiceSource.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="..\include\teamspeak\public_rare_definitions.h" />
     <ClInclude Include="..\include\ts3_functions.h" />
     <ClInclude Include="NncToTs.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="Point3D.h" />
     <ClInclude Include="VoiceSource.h" />
