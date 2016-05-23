@@ -1,5 +1,6 @@
 #pragma once
 #include "VoiceSource.h"
+
 class Player :
 	public VoiceSource
 {
@@ -17,7 +18,7 @@ public:
 	virtual ~Player();
 
 	//getters and setters
-	bool getHasRadio();
+	bool getHasRadio() const;
 	void setHasRadio(bool hasRadio);
 
 protected:

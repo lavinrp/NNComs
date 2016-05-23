@@ -103,10 +103,14 @@ Player::~Player() {
 #pragma endregion
 
 #pragma region getters and settere
-bool Player::getHasRadio() {
+
+/*@return: true if the player has a radio. false otherwise*/
+bool Player::getHasRadio() const{
 	return hasRadio;
 }
 
+/*sets the hasRadio property to the passed value
+@param hasRadio: true if the player has a radio. false otherwise*/
 void Player::setHasRadio(bool hasRadio) {
 	this->hasRadio = hasRadio;
 }
