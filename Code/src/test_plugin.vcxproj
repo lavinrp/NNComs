@@ -144,6 +144,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="Point3D.cpp" />
+    <ClCompile Include="Radio.cpp" />
     <ClCompile Include="VoiceSource.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="Point3D.h" />
+    <ClInclude Include="Radio.h" />
     <ClInclude Include="VoiceSource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -7,20 +7,6 @@ VoiceSource::VoiceSource() : Point3D() {
 	voiceLevel = 0;
 }
 
-/*Constructor for VoiceSource. default Point3D. Sets voiceLevel*/
-VoiceSource::VoiceSource(double level) : Point3D() {
-	voiceLevel = level;
-}
-
-/*Voice Source constructor
-@param x: x position of the source
-@param y: y position of the source
-@param z: z position of the source
-@param level: voice level of the voice source*/
-VoiceSource::VoiceSource(double x, double y, double z, double level) : Point3D(x, y, z) {
-	voiceLevel = level;
-}
-
 /*Voice Source constructor
 @param x: x position of the source
 @param y: y position of the source

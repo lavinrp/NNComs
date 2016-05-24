@@ -7,10 +7,6 @@ class Player :
 public:
 	//constructors / destructor
 	Player();
-	Player(double level, bool hasRadio);
-	Player(double level);
-	Player(double x, double y, double z, double level, bool hasRadio);
-	Player(double x, double y, double z, double level);
 	Player(double x, double y, double z);
 	Player(double x, double y, double z, bool hasRadio);
 	Player(bool hasRadio);
