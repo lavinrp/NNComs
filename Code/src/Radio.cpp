@@ -44,6 +44,12 @@ Radio::~Radio() {
 }
 #pragma endregion
 
+#pragma region Member Functions
+
+
+
+#pragma endregion
+
 #pragma region getters / setters
 
 /*returns the frequency value of this radio*/

@@ -8,16 +8,7 @@ public:
 	//constructors / destructor
 	Player();
 	Player(double x, double y, double z);
-	Player(double x, double y, double z, bool hasRadio);
-	Player(bool hasRadio);
 
 	virtual ~Player();
-
-	//getters and setters
-	bool getHasRadio() const;
-	void setHasRadio(bool hasRadio);
-
-protected:
-	bool hasRadio;
 };
 

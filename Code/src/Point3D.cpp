@@ -94,11 +94,25 @@ double Point3D::getX() const {
 	return this->x;
 }
 
+/*setX
+sets the x position of the Point3D
+@param newX: new x position*/
+void Point3D::setX(double newX) {
+	x = newX;
+}
+
 /*getY
 returns the y position of this Point3D
 @returns: y*/
 double Point3D::getY() const {
 	return this->y;
+}
+
+/*setY
+sets the y position of the Point3D
+@param newY: y position of the Point3D*/
+void Point3D::setY(double newY) {
+	y = newY;
 }
 
 /*getZ
@@ -107,6 +121,15 @@ returns the z position of this Point3D
 double Point3D::getZ() const {
 	return this->z;
 }
+
+/*setZ
+sets the z position of the Point3D
+@param newZ: new z position of the Point3D*/
+void Point3D::setZ(double newZ) {
+	z = newZ;
+}
+
+
 
 /*Assignment operator
 assigns the values of this Point3D to those of the passed Point3D

@@ -1,4 +1,5 @@
 #pragma once
+
 class Point3D
 {
 public:
@@ -18,11 +19,15 @@ public:
 
 	//getters / setters
 	double getX() const;
+	void setX(double newX);
 	double getY() const;
+	void setY(double newY);
 	double getZ() const;
+	void setZ(double newZ);
 	void operator=(const Point3D& other);
 
 protected:
+	//x, y, and z positions of the Point3D (Cartesian coordinates)
 	double x;
 	double y;
 	double z;
