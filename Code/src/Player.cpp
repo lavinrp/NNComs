@@ -7,7 +7,7 @@
 /*Default constructor
 position: 0,0,0
 voiceLevel: 0*/
-Player::Player() {}
+Player::Player() : Player(0, 0, 0) {}
 
 
 /*constructor
@@ -17,6 +17,7 @@ voiceLevel defaults to 0
 @param z: z position of the player*/
 Player::Player(double x, double y, double z) :
 	VoiceSource(x, y, z) {
+	primaryRadioLocation = 0;
 }
 
 Player::~Player() {
