@@ -16,7 +16,7 @@ voiceLevel defaults to 0
 @param y: y position of the player
 @param z: z position of the player*/
 Player::Player(double x, double y, double z) :
-	VoiceSource(x, y, z){
+	VoiceSource(x, y, z) {
 }
 
 Player::~Player() {
