@@ -25,6 +25,5 @@ protected:
 	double voiceLevel;
 	//modifies the rate at which sound degrades over distance
 	const double voiceFalloffModifier = 1;
-
 };
 

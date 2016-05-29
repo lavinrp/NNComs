@@ -40,10 +40,4 @@ private:
 	short* distortions;
 	int sources;
 
-
-
-
 };
-
-
-
