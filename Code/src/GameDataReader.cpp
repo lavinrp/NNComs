@@ -97,23 +97,29 @@ void GameDataReader::readFromPipe() {
 		if (readResult) {
 			//TODO (Ryan Lavin): store data - 5/28/2016
 		} else {
-			//reconnect to game if read was bad
-			setConnectedStatus(false);
-			bool connected;
-			connected = connectToPipe();
-			setConnectedStatus(connected);
+			//bad read halt reading
+			return;
 		}
 	}
 }
  
+/*collectGameData
+Searches for and maintains connection to game pipe.
+Stores data from game pipe.
+Thread safe.*/
 void GameDataReader::collectGameData() {
 
-	//Connect to the game pipe
-	//will go on indefinitely until connection is established or an error occurs
-	bool connection = connectToPipe();
-	setConnectedStatus(connection);
+	while (true) {
+		//Connect to the game pipe
+		//will go on indefinitely until connection is established or an error occurs
+		bool connection = connectToPipe();
+		setConnectedStatus(connection);
 
-	readFromPipe();
+		//read from pipe untill bad read
+		readFromPipe();
+		//set connectedStatus and begin connection process again after bad read
+		setConnectedStatus(false);
+	}
 }
 
 /*begin
