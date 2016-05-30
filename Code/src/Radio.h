@@ -19,7 +19,6 @@ public:
 	bool isOn();
 	void setOn(bool on);
 
-
 protected:
 	//member variables
 	double frequency;

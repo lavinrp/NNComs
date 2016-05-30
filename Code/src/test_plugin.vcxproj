@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameData.cpp" />
     <ClCompile Include="GameDataReader.cpp" />
     <ClCompile Include="NncToTs.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="..\include\teamspeak\public_errors_rare.h" />
     <ClInclude Include="..\include\teamspeak\public_rare_definitions.h" />
     <ClInclude Include="..\include\ts3_functions.h" />
+    <ClInclude Include="GameData.h" />
     <ClInclude Include="GameDataReader.h" />
     <ClInclude Include="NncToTs.h" />
     <ClInclude Include="Player.h" />

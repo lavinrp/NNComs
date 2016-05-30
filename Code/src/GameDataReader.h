@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <iostream>
 #include <mutex>
-#include<thread>
+#include <thread>
 
 using namespace std;
 
@@ -38,6 +38,7 @@ protected:
 
 	//Pipe things
 	const LPTSTR pipeName = TEXT("\\\\.\\pipe\\gamePipe");
+	bool continueDataCollection;
 	HANDLE pipeHandle;
 };
 

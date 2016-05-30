@@ -5,7 +5,8 @@
 
 //default constructor
 GameDataReader::GameDataReader(){
-	
+	setConnectedStatus(false);
+	continueDataCollection = true;
 }
 
 GameDataReader::~GameDataReader() {}
@@ -37,7 +38,6 @@ void GameDataReader::setConnectedStatus(bool status) {
 }
 
 #pragma endregion
-
 
 #pragma region Member Functions
 
@@ -109,13 +109,13 @@ Stores data from game pipe.
 Thread safe.*/
 void GameDataReader::collectGameData() {
 
-	while (true) {
+	while (continueDataCollection) {
 		//Connect to the game pipe
 		//will go on indefinitely until connection is established or an error occurs
 		bool connection = connectToPipe();
 		setConnectedStatus(connection);
 
-		//read from pipe untill bad read
+		//read from pipe until bad read
 		readFromPipe();
 		//set connectedStatus and begin connection process again after bad read
 		setConnectedStatus(false);
@@ -125,6 +125,6 @@ void GameDataReader::collectGameData() {
 /*begin
 starts thread in charge of pipe connection and reading*/
 void GameDataReader::begin() {
-	thread (collectGameData);
+	thread(collectGameData);
 }
 #pragma endregion
