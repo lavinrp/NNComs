@@ -81,7 +81,7 @@ Maintains game pipe connection.*/
 void GameDataReader::readFromPipe() {
 	//initialize pipe variables
 	//TODO(Ryan Lavin): make buffer of correct type - 5/28/2016
-	DWORD buffer[READER_BUFFER_SIZE];
+	double buffer[READER_BUFFER_SIZE];
 	DWORD bytesRead = 0;
 	while (true) {
 		//Bring data in from pipe

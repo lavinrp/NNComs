@@ -1,5 +1,9 @@
 #pragma once
 
+//the number of doubles that need to be passed by a game to create
+//a full Point3D
+const unsigned int DOUBLES_PER_POINT3D = 3;
+
 class Point3D
 {
 public:

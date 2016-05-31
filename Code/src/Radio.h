@@ -1,5 +1,9 @@
 #pragma once
 #include "VoiceSource.h"
+
+//The number of doubles that need to be passed by a game to create a full Radio
+const unsigned int DOUBLES_PER_RADIO = DOUBLES_PER_VOICE_SOURCE + 3;
+
 class Radio :
 	public VoiceSource
 {

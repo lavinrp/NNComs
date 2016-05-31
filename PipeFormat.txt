@@ -1,0 +1,20 @@
+reinit?
+# of radios
+x
+y
+z
+voiceLevel
+frequency
+volume
+on
+...
+
+# of players
+x
+y
+z
+voiceLevel
+selectedRadio
+...
+
+

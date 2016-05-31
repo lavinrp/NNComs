@@ -7,6 +7,7 @@
 
 const unsigned int MAX_RADIO_COUNT = 500;
 const unsigned int MAX_PLAYER_COUNT = 100;
+const unsigned int MAX_RADIOS_PER_PLAYER = 1;
 
 class GameData
 {

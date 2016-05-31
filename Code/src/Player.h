@@ -8,7 +8,8 @@
 
 using namespace std;
 
-
+//The number of doubles that need to be passed by a game to create a full Player
+const unsigned int DOUBLES_PER_PLAYER = DOUBLES_PER_VOICE_SOURCE + 1;
 
 class Player :
 	public VoiceSource {
@@ -20,22 +21,11 @@ public:
 	virtual ~Player();
 
 	//getters / setters
-	Radio* getPrimaryRadio();
-	void selectPrimaryRadio(unsigned int postion);
-
-	unsigned int getRadioCount();
-	Radio* getRadio(unsigned int position);
-
-	//Member Functions
-	void addRadio(Radio* radio);
-	void removeRadio(unsigned int position);
-	void replaceRadio(unsigned int position, Radio* replacement);
+	Radio* getRadio();
+	void setRadio(Radio* radio);
 
 protected:
-	//Index of the currently selected radio
-	unsigned int primaryRadioLocation;
-
-	//radios held by the player
-	vector<Radio*> radios;
+	//currently selected radio
+	Radio* radio;
 };
 

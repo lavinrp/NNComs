@@ -5,10 +5,19 @@
 #include <mutex>
 #include <thread>
 
+#include "GameData.h"
+
 using namespace std;
 
+//The number of values telling Game data reader how many player and radio doubles will be in each read
+const unsigned int SIGNAL_VALUES_PER_READ = 2;
+
+//signals if this read will be an initilization 0 is false anything else is true
+const unsigned int INIT_FLAG = 1;
+
 //buffer size for each read of GameDataReader
-const unsigned int READER_BUFFER_SIZE = 128;//TODO: change this to 2 X the size of the GameData
+const unsigned int READER_BUFFER_SIZE = (MAX_RADIO_COUNT * DOUBLES_PER_RADIO +
+	MAX_PLAYER_COUNT * DOUBLES_PER_PLAYER + SIGNAL_VALUES_PER_READ + INIT_FLAG) * 2;
 
 class GameDataReader
 {

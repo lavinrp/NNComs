@@ -1,6 +1,9 @@
 #pragma once
 #include "Point3D.h"
 
+//The number of doubles that need to be passed by a game to create a full VoiceSource
+const unsigned int DOUBLES_PER_VOICE_SOURCE = DOUBLES_PER_POINT3D + 1;
+
 class VoiceSource : public Point3D
 {
 public:
