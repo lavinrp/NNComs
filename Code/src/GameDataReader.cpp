@@ -83,6 +83,10 @@ void GameDataReader::readFromPipe() {
 	//TODO(Ryan Lavin): make buffer of correct type - 5/28/2016
 	double buffer[READER_BUFFER_SIZE];
 	DWORD bytesRead = 0;
+
+	//flag set to true when the next reed will reinitialize NNC
+	bool initRead = true;
+
 	while (true) {
 		//Bring data in from pipe
 		bool readResult = ReadFile(
@@ -95,12 +99,23 @@ void GameDataReader::readFromPipe() {
 	
 		//store data
 		if (readResult) {
-			//TODO (Ryan Lavin): store data - 5/28/2016
+			if (initRead) {
+
+			} else {
+				//TODO (Ryan Lavin): store data - 5/28/2016
+			}
 		} else {
 			//bad read halt reading
 			return;
 		}
 	}
+}
+
+/*initializePlayeres
+Determines players TS ID based on TS and in game username.
+*/
+void GameDataReader::initializePlayers() {
+
 }
  
 /*collectGameData

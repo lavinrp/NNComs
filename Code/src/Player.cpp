@@ -41,5 +41,19 @@ void Player::setRadio(Radio* radio) {
 	this->radio = radio;
 }
 
+/*getID
+returns the players TS ID
+@returns: the TS ID of the player*/
+anyID Player::getID() {
+	return this->id;
+}
+
+/*setID
+stores the players TS ID
+@param id: players new TS ID*/
+void Player::setID(anyID id) {
+	this -> id = id;
+}
+
 #pragma endregion
 

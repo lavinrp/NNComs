@@ -12,7 +12,7 @@ using namespace std;
 //The number of values telling Game data reader how many player and radio doubles will be in each read
 const unsigned int SIGNAL_VALUES_PER_READ = 2;
 
-//signals if this read will be an initilization 0 is false anything else is true
+//signals if this read will be an initialization 0 is false anything else is true
 const unsigned int INIT_FLAG = 1;
 
 //buffer size for each read of GameDataReader
@@ -37,6 +37,8 @@ public:
 	bool connectToPipe();
 
 	void readFromPipe();
+
+	void initializePlayers();
 
 protected:
 	//connection
