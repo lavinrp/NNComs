@@ -1,20 +1,33 @@
-reinit?
-# of radios
-x
-y
-z
-voiceLevel
-frequency
-volume
-on
+//init
+in game id (int64)
+
+
+//LOOP BEGIN
 ...
+//first player and radio count
+#of players (int64)
+#of radios (int64)
 
-# of players
-x
-y
-z
-voiceLevel
-selectedRadio
 ...
+//loop begin
+//Radios
+x(double)
+y(double)
+z(double)
+voiceLevel(double)
+frequency(double)
+volume(double)
+on(double)
+//loop end
+//LOOP END
 
-
+...
+//loop begin
+//Players
+x(double)
+y(double)
+z(double)
+voiceLevel(double)
+selectedRadio(double)
+gameID(double)
+//loop end

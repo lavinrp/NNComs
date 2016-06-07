@@ -22,8 +22,11 @@ public:
 
 	vector<Player*>* getPlayers();
 	vector<Radio*>* getRadios();
+	Radio* getRadio(unsigned int position);
 
 	//member functions
+	void addPlayer(Player* player);
+	void addRadio(Radio* radio);
 
 private:
 	bool inGame;

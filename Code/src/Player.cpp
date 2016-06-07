@@ -44,15 +44,27 @@ void Player::setRadio(Radio* radio) {
 /*getID
 returns the players TS ID
 @returns: the TS ID of the player*/
-anyID Player::getID() {
-	return this->id;
+anyID Player::getTsID() {
+	return this->tsID;
 }
 
 /*setID
 stores the players TS ID
 @param id: players new TS ID*/
-void Player::setID(anyID id) {
-	this -> id = id;
+void Player::setTsID(anyID id) {
+	this -> tsID = id;
+}
+
+/*getGameID
+returns the in game ID of the player*/
+unsigned int Player::getGameID() {
+	return gameID;
+}
+/*setGameID
+stores the game ID of the player
+@param gameID: new ID of the player*/
+void Player::setGameID(unsigned int gameID) {
+	this->gameID = gameID;
 }
 
 #pragma endregion

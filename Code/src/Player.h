@@ -12,7 +12,7 @@ using namespace std;
 typedef unsigned __int16 anyID;
 
 //The number of doubles that need to be passed by a game to create a full Player
-const unsigned int DOUBLES_PER_PLAYER = DOUBLES_PER_VOICE_SOURCE + 1;
+const unsigned int DOUBLES_PER_PLAYER = DOUBLES_PER_VOICE_SOURCE + 2;
 
 class Player :
 	public VoiceSource {
@@ -28,14 +28,18 @@ public:
 	Radio* getRadio();
 	void setRadio(Radio* radio);
 
-	anyID getID();
-	void setID(anyID id);
+	anyID getTsID();
+	void setTsID(anyID id);
+
+	unsigned int getGameID();
+	void setGameID(unsigned int gameID);
 
 protected:
 	//currently selected radio
 	Radio* radio;
 	//TS identification number
-	anyID id;
-
+	anyID tsID;
+	//game identification number
+	unsigned int gameID;
 };
 
