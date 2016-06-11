@@ -6,16 +6,29 @@
 /*Default constructor for GameData
 allocated radios and players*/
 GameData::GameData() {
-	radios = new vector<Radio*>();
-	players = new vector<Player*>();
+	radios = new map<unsigned int, Radio*>();
+	players = new map<unsigned int, Player*>();
 }
 
 /*destructor for GameData
-frees memory for the radios and players vectors, but
-not for elements in the vectors*/
+frees memory for the radios and players vectors, including
+each element in the vectors*/
 GameData::~GameData() {
+	//free radio memory
+	for (map<unsigned int, Radio*>::iterator it = radios->begin(); it != radios->end(); it++) {
+		delete it->second;
+		it->second = nullptr;
+	}
 	delete radios;
+	radios = nullptr;
+
+	//free player memory
+	for (map<unsigned int, Player*>::iterator it = players->begin(); it != players->end(); it++) {
+		delete it->second;
+		it->second = nullptr;
+	}
 	delete players;
+	players = nullptr;
 }
 #pragma endregion
 
@@ -25,19 +38,24 @@ bool GameData::getInGame() {
 	return inGame;
 }
 
-/*sets the ingame Status of the GameData*/
+/*sets the in-game Status of the GameData*/
 void GameData::setInGame(bool inGame) {
 	this->inGame = inGame;
 }
 
 /*returns the vector of player pointers as a pointer*/
 vector<Player*>* GameData::getPlayers() {
-	return players;
+	//TODO(Ryan Lavin): fill stub -6/11/2016
+
+	throw exception("Not Implemented");
 }
 
 /*returns the vector of radio pointers as a pointer*/
 vector<Radio*>* GameData::getRadios() {
-	return radios;
+	//TODO(Ryan Lavin): fill stub -6/11/2016
+
+	throw exception("Not Implemented");
+
 }
 
 /*getRadio
@@ -58,12 +76,14 @@ Radio* GameData::getRadio(unsigned int position) {
 adds the passed Player pointer to the vector of players
 @param player: player to add to the GameData*/
 void GameData::addPlayer(Player* player) {
-	players->push_back(player);
+	//TODO(Ryan Lavin): fill stub -6/11/2016
+	throw exception("Not Implemented");
 }
 /*addRadio
 adds the passed Radio pointer to the vector of radios
 @param radio: radio to add to the GameData*/
 void GameData::addRadio(Radio* radio) {
-	radios->push_back(radio);
+	//TODO(Ryan Lavin): fill stub -6/11/2016
+	throw exception("Not Implemented");
 }
 #pragma endregion

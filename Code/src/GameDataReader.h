@@ -4,6 +4,7 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <map>
 
 #include "GameData.h"
 
@@ -50,11 +51,10 @@ public:
 
 	//getters / setters
 	bool isConnected();
+	GameData* getGameData();
 
 	//Member functions
 	void begin();
-
-	
 
 protected:
 	//reading functions
@@ -72,9 +72,9 @@ protected:
 
 	void readRadios(INT64 radioCount);
 
-
 	//Member variables
 	GameData* gameData;
+	mutex gameDataMutex;
 
 	//connection
 	bool connectedStatus;

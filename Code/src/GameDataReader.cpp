@@ -15,7 +15,11 @@ GameDataReader::GameDataReader(const TS3Functions ts3Functions, const uint64 ser
 }
 
 GameDataReader::~GameDataReader() {
+	while (!gameDataMutex.try_lock()) {
+		this_thread::sleep_for(0.01s);
+	}
 	delete gameData;
+	gameDataMutex.unlock();
 }
 #pragma endregion
 
@@ -42,6 +46,13 @@ void GameDataReader::setConnectedStatus(bool status) {
 	//set and unlock connectedStatus
 	connectedStatus = status;
 	connectedStatusMutex.unlock();
+}
+
+/*getGameData
+returns a pointer to GameDataReaders GameData
+*/
+GameData* GameDataReader::getGameData() {
+	return gameData;
 }
 
 #pragma endregion
@@ -90,29 +101,12 @@ void GameDataReader::readFromPipe() {
 	//initialize this users in game ID and display in metadata
 	initializePlayer();
 
-	//initialize pipe variables
-	//TODO(Ryan Lavin): make buffer of correct type - 5/28/2016
-	double buffer[READER_BUFFER_SIZE];
-	DWORD bytesRead = 0;
+	//find the number of each type of voice source to read
+	VoiceSourceCounts voiceSourceCounts = readVoiceSourceCounts();
 
-	while (true) {
-		//Bring data in from pipe
-		bool readResult = ReadFile(
-			pipeHandle,				//pipe
-			buffer,					//Write location
-			//TODO (Ryan Lavin): make the following line size of GameData - 5/28/2016
-			sizeof(DWORD),			//number of bytes to read
-			&bytesRead,				//bytes read
-			NULL);					//Overlapped
-	
-		//store data
-		if (readResult) {
-			//TODO (Ryan Lavin): store data - 5/28/2016
-		} else {
-			//bad read halt reading
-			return;
-		}
-	}
+	//read and create players and radios
+	readRadios(voiceSourceCounts.radioCount);
+	readPlayers(voiceSourceCounts.playerCount);
 }
 
 /*initializePlayer
@@ -132,7 +126,7 @@ void GameDataReader::initializePlayer() {
 			NULL);					//Overlapped
 	}
 	//set metadata to value read from pipe
-	ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, buffer[0]);
+	ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, (int)buffer[0]);
 }
 
 /*readVoiceSourceCounts
@@ -184,7 +178,7 @@ void GameDataReader::readRadios(const INT64 radioCount) {
 		readRadio->setVoiceLevel(buffer[3]);
 		readRadio->setFrequency(buffer[4]);
 		readRadio->setVolume(buffer[5]);
-		readRadio->setOn(buffer[6]);
+		readRadio->setOn((bool)buffer[6]);
 
 		//add fully created radio to game data
 		gameData->addRadio(readRadio);
@@ -215,7 +209,7 @@ void GameDataReader::readPlayers(const INT64 playerCount) {
 		Radio* primaryRadio = gameData->getRadio((unsigned int)buffer[4]);
 		readPlayer->setRadio(primaryRadio);
 		//store the players in game id
-		readPlayer->setGameID(buffer[5]);
+		readPlayer->setGameID((unsigned int)buffer[5]);
 
 		//add fully created player to game data
 		gameData->addPlayer(readPlayer);

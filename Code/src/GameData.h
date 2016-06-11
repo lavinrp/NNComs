@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include "Radio.h"
 #include "Player.h"
@@ -31,7 +32,7 @@ public:
 private:
 	bool inGame;
 
-	vector<Radio*>* radios;
-	vector<Player*>* players;
+	map<unsigned int, Radio*>* radios;
+	map<unsigned int, Player*>* players;
 };
 
