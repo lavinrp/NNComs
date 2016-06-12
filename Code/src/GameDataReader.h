@@ -33,16 +33,15 @@ class GameDataReader
 public:
 	//Constructors / destructor
 
-	/*Only constructor for GameDataReader
-	initializes GameDataReader values. TS functions must be passed to allow for initialization
-	of user
-	@param ts3Functions: pointer functions from the ts3 plugin SDK
-	@param serverConnectionHandlerID: id of the server the user is connected to*/
 	GameDataReader(const TS3Functions ts3Functions, const uint64 serverConnectionHandlerID);
+	GameDataReader(const TS3Functions ts3Functions);
+
+
 	virtual ~GameDataReader();
 
 	//getters / setters
 	bool isConnected();
+	void setServerConnectionHandlerID(const uint64 serverConnectionHandlerID);
 
 		//player
 	Player* getPlayer(GameID gameID);
@@ -68,8 +67,6 @@ protected:
 	void readPlayers(const INT64 playerCount);
 
 	void readRadios(INT64 radioCount);
-
-
 
 	//Member variables
 	//gameData

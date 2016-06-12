@@ -5,13 +5,23 @@
 
 #pragma region Constructors / destructor
 
-//default constructor
+
+/*
+initializes GameDataReader values.TS functions must be passed to allow for initialization
+of user
+@param ts3Functions: pointer functions from the ts3 plugin SDK
+@param serverConnectionHandlerID : id of the server the user is connected to*/
 GameDataReader::GameDataReader(const TS3Functions ts3Functions, const uint64 serverConnectionHandlerID){
 	setConnectedStatus(false);
 	continueDataCollection = true;
 	this->ts3Functions = ts3Functions;
 	this->serverConnectionHandlerID = serverConnectionHandlerID;
 }
+
+/*Constructor for game data reader. server connection handler 
+defaults to 0 and must be set at a later time.
+@param ts3Functions: pointer functions from the ts3 plugin SDK*/
+GameDataReader::GameDataReader(const TS3Functions ts3Functions) : GameDataReader(ts3Functions, 0) {}
 
 GameDataReader::~GameDataReader() {
 	//free radio memory
@@ -78,6 +88,12 @@ Radio* GameDataReader::getRadio(unsigned int position) {
 	}
 }
 
+/*setServerConnectionHandlerID
+sets the serverConnectionHandlerID
+@param serverConnectionHandlerID: new serverConnectionHandlerID*/
+void GameDataReader::setServerConnectionHandlerID(const uint64 serverConnectionHandlerID) {
+	this->serverConnectionHandlerID = serverConnectionHandlerID;
+}
 #pragma endregion
 
 #pragma region Member Functions
@@ -204,6 +220,7 @@ void GameDataReader::readRadios(const INT64 radioCount) {
 		double frequency = buffer[4];
 		double volume = buffer[5];
 		bool on = (bool)buffer[6];
+		bool broadcasting = (bool)buffer[7];
 
 		//update or create radio
 		Radio* readRadio = getRadio(i);
@@ -221,6 +238,7 @@ void GameDataReader::readRadios(const INT64 radioCount) {
 		readRadio->setVoiceLevel(voiceLevel);
 		readRadio->setVolume(volume);
 		readRadio->setOn(on);
+		readRadio->setBroadcasting(broadcasting);
 	}
 }
 
@@ -266,7 +284,6 @@ void GameDataReader::readPlayers(const INT64 playerCount) {
 		readPlayer->setRadio(selectedRadio);
 	}
 }
-
 
 /*collectGameData
 Searches for and maintains connection to game pipe.
