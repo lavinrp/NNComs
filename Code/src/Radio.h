@@ -2,7 +2,7 @@
 #include "VoiceSource.h"
 
 //The number of doubles that need to be passed by a game to create a full Radio
-const unsigned int DOUBLES_PER_RADIO = DOUBLES_PER_VOICE_SOURCE + 3;
+const unsigned int DOUBLES_PER_RADIO = DOUBLES_PER_VOICE_SOURCE + 4;
 
 class Radio :
 	public VoiceSource
@@ -22,11 +22,14 @@ public:
 	void setVolume(double newVolume);
 	bool isOn();
 	void setOn(bool on);
+	bool isBroadcasting();
+	void setBroadcasting(bool broadcasting);
 
 protected:
 	//member variables
 	double frequency;
 	double volume;
 	bool on;
+	bool broadcasting;
 };
 

@@ -37,6 +37,7 @@ defaults to on with a volume of one
 Radio::Radio(double x, double y, double z, double frequency) : VoiceSource(x, y, z) {
 	this->frequency = frequency;
 	on = true;
+	broadcasting = false;
 	volume = 1;
 }
 
@@ -77,5 +78,20 @@ bool Radio::isOn() {
 @param on: true sets the radio on. false sets the radio off*/
 void Radio::setOn(bool on) {
 	this->on = on;
+}
+
+/*isBroadcasting
+true if the radio should transmit player voices
+return: true if player voice should be sent. false otherwise.*/
+bool Radio::isBroadcasting() {
+	return this->broadcasting;
+}
+
+/*setBroadcasting
+sets the broadcasting property of the radio.
+Set to true if the radio should broadcast. set to false otherwise.
+@param broadcasting: the new broadcasting state of the radio.*/
+void Radio::setBroadcasting(bool broadcasting) {
+	this->broadcasting = broadcasting;
 }
 #pragma endregion

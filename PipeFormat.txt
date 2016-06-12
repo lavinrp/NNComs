@@ -18,6 +18,7 @@ voiceLevel(double)
 frequency(double)
 volume(double)
 on(double)
+broadcasting(double)
 //loop end
 //LOOP END
 
