@@ -1,7 +1,5 @@
 #include "Player.h"
 
-//TODO(Ryan Lavin): make this match the UML - 5/23/2016
-
 #pragma region Constructors / destructor
 
 /*Default constructor
@@ -18,6 +16,7 @@ voiceLevel defaults to 0
 Player::Player(double x, double y, double z) :
 	VoiceSource(x, y, z) {
 	radio = nullptr;
+	tsID = -1; //TODO(Ryan Lavin): determine if this is a good default value. -6/11/2016
 }
 
 Player::~Player() {
@@ -41,31 +40,18 @@ void Player::setRadio(Radio* radio) {
 	this->radio = radio;
 }
 
-/*getID
+/*getTsID
 returns the players TS ID
 @returns: the TS ID of the player*/
 anyID Player::getTsID() {
 	return this->tsID;
 }
 
-/*setID
+/*setTsID
 stores the players TS ID
 @param id: players new TS ID*/
 void Player::setTsID(anyID id) {
 	this -> tsID = id;
 }
 
-/*getGameID
-returns the in game ID of the player*/
-unsigned int Player::getGameID() {
-	return gameID;
-}
-/*setGameID
-stores the game ID of the player
-@param gameID: new ID of the player*/
-void Player::setGameID(unsigned int gameID) {
-	this->gameID = gameID;
-}
-
 #pragma endregion
-

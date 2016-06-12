@@ -4,21 +4,13 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
-#include <map>
+#include <unordered_map>
+#include <vector>
 
-#include "GameData.h"
+#include "Player.h"
+#include "Radio.h"
 
 using namespace std;
-
-//The number of values telling Game data reader how many player and radio doubles will be in each read
-const unsigned int SIGNAL_VALUES_PER_READ = 2;
-
-//Number of values used to flag initialization. 
-const unsigned int INIT_FLAG = 1;
-
-//buffer size for each read of GameDataReader
-const unsigned int READER_BUFFER_SIZE = (MAX_RADIO_COUNT * DOUBLES_PER_RADIO +
-	MAX_PLAYER_COUNT * DOUBLES_PER_PLAYER + SIGNAL_VALUES_PER_READ + INIT_FLAG) * 2;
 
 //buffer size for initialization
 const unsigned int INIT_BUFFER_SIZE = 1;
@@ -51,7 +43,12 @@ public:
 
 	//getters / setters
 	bool isConnected();
-	GameData* getGameData();
+
+		//player
+	Player* getPlayer(GameID gameID);
+
+		//radio
+	Radio* getRadio(unsigned int position);
 
 	//Member functions
 	void begin();
@@ -72,9 +69,12 @@ protected:
 
 	void readRadios(INT64 radioCount);
 
+
+
 	//Member variables
-	GameData* gameData;
-	mutex gameDataMutex;
+	//gameData
+	unordered_map <GameID, Player*> players;
+	vector<Radio*> radios;
 
 	//connection
 	bool connectedStatus;

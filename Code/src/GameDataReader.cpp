@@ -11,15 +11,17 @@ GameDataReader::GameDataReader(const TS3Functions ts3Functions, const uint64 ser
 	continueDataCollection = true;
 	this->ts3Functions = ts3Functions;
 	this->serverConnectionHandlerID = serverConnectionHandlerID;
-	gameData = new GameData();
 }
 
 GameDataReader::~GameDataReader() {
-	while (!gameDataMutex.try_lock()) {
-		this_thread::sleep_for(0.01s);
+	//free radio memory
+	for (Radio* radio : radios) {
+		delete radio;
 	}
-	delete gameData;
-	gameDataMutex.unlock();
+	//free player memory
+	for (unordered_map<GameID, Player*>::iterator it = players.begin(); it != players.end(); it++) {
+		delete it->second;
+	}
 }
 #pragma endregion
 
@@ -48,11 +50,32 @@ void GameDataReader::setConnectedStatus(bool status) {
 	connectedStatusMutex.unlock();
 }
 
-/*getGameData
-returns a pointer to GameDataReaders GameData
-*/
-GameData* GameDataReader::getGameData() {
-	return gameData;
+/*getPlayer
+finds the player with the passed gameID
+@param gameID: in game ID of the player to find
+@return: Return a pointer to the player with the passed gameID if one exists. Return nullptr otherwise.*/
+Player* GameDataReader::getPlayer(GameID gameID) {
+	unordered_map<GameID, Player*>::iterator playerIterator;
+	playerIterator = players.find(gameID);
+
+	if ( playerIterator != players.end() ) {
+		return playerIterator->second;
+	} else {
+		return nullptr;
+	}
+}
+
+/*getRadio
+returns the requested radio
+@param position: the position of the radio to return
+@return: Pointer to the radio at the passed position in GameDataReaders radio vector. nullptr if
+the requested radio does not exist.*/
+Radio* GameDataReader::getRadio(unsigned int position) {
+	if (radios.size() > position) {
+		return radios[position];
+	} else {
+		return nullptr;
+	}
 }
 
 #pragma endregion
@@ -156,7 +179,7 @@ VoiceSourceCounts GameDataReader::readVoiceSourceCounts() {
 }
 
 /*readRadio
-reads the radios passed through the pipe. Memory allocated for radios created here is released by GameData
+reads the radios passed through the pipe.
 @param radioCount the number of radios that is expected to be sent by the pipe*/
 void GameDataReader::readRadios(const INT64 radioCount) {
 	for (unsigned int i = 0; i < radioCount; i++) {
@@ -173,20 +196,36 @@ void GameDataReader::readRadios(const INT64 radioCount) {
 				NULL);									//Overlapped
 		}
 
-		//create radio and set its values
-		Radio* readRadio = new Radio(buffer[0], buffer[1], buffer[2]);
-		readRadio->setVoiceLevel(buffer[3]);
-		readRadio->setFrequency(buffer[4]);
-		readRadio->setVolume(buffer[5]);
-		readRadio->setOn((bool)buffer[6]);
+		//values from pipe
+		double xpos = buffer[0];
+		double ypos = buffer[1];
+		double zpos = buffer[2];
+		double voiceLevel = buffer[3];
+		double frequency = buffer[4];
+		double volume = buffer[5];
+		bool on = (bool)buffer[6];
 
-		//add fully created radio to game data
-		gameData->addRadio(readRadio);
+		//update or create radio
+		Radio* readRadio = getRadio(i);
+		if (readRadio) {
+			readRadio->setX(xpos);
+			readRadio->setY(ypos);
+			readRadio->setZ(zpos);
+			readRadio->setFrequency(frequency);
+
+		} else {
+			//create radio and store it
+			readRadio = new Radio(xpos, ypos, zpos, frequency);
+			radios.push_back(readRadio);
+		}
+		readRadio->setVoiceLevel(voiceLevel);
+		readRadio->setVolume(volume);
+		readRadio->setOn(on);
 	}
 }
 
 /*readPlayers
-reads the players pass through the pipe. Memory allocated for players created here is released by GameData.
+reads the players pass through the pipe.
 @param playerCount: number of players that is expected to be sent by the pipe*/
 void GameDataReader::readPlayers(const INT64 playerCount) {
 	for (unsigned int i = 0; i < playerCount; i++) {
@@ -202,17 +241,29 @@ void GameDataReader::readPlayers(const INT64 playerCount) {
 				&bytesRead,								//bytes read
 				NULL);									//Overlapped
 		}
-		//create player and set its values
-		Player* readPlayer = new Player(buffer[0], buffer[1], buffer[2]);
-		readPlayer->setVoiceLevel(buffer[3]);
-		//get radio at passed index
-		Radio* primaryRadio = gameData->getRadio((unsigned int)buffer[4]);
-		readPlayer->setRadio(primaryRadio);
-		//store the players in game id
-		readPlayer->setGameID((unsigned int)buffer[5]);
 
-		//add fully created player to game data
-		gameData->addPlayer(readPlayer);
+		double xpos = buffer[0];
+		double ypos = buffer[1];
+		double zpos = buffer[2];
+		double voiceLevel = buffer[3];
+		unsigned int radioPosition = (unsigned int) buffer[4];
+		GameID gameID = (GameID)buffer[5];
+
+		//update or create player
+		Player* readPlayer = getPlayer(gameID);
+		if (readPlayer) {
+			readPlayer->setX(xpos);
+			readPlayer->setY(ypos);
+			readPlayer->setZ(zpos);
+			
+		} else {
+			//create and store player
+			readPlayer = new Player(xpos, ypos, zpos);
+			players.emplace(gameID, readPlayer);
+		}
+		readPlayer->setVoiceLevel(voiceLevel);
+		Radio* selectedRadio = getRadio(radioPosition);
+		readPlayer->setRadio(selectedRadio);
 	}
 }
 

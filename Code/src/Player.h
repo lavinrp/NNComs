@@ -6,8 +6,11 @@
 #include "VoiceSource.h"
 #include "Radio.h"
 
+
 using namespace std;
 
+//type of players unique game ID
+typedef unsigned long long GameID;
 //Holds ID for player in TS
 typedef unsigned __int16 anyID;
 
@@ -31,15 +34,10 @@ public:
 	anyID getTsID();
 	void setTsID(anyID id);
 
-	unsigned int getGameID();
-	void setGameID(unsigned int gameID);
-
 protected:
 	//currently selected radio
 	Radio* radio;
 	//TS identification number
 	anyID tsID;
-	//game identification number
-	unsigned int gameID;
 };
 
