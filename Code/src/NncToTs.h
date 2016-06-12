@@ -1,4 +1,9 @@
 #pragma once
+#include "GameDataReader.h"
+#include "VoiceSource.h"
+#include "Player.h"
+#include "Radio.h"
+
 
 typedef unsigned __int16 anyID;
 
@@ -39,5 +44,6 @@ private:
 	float* rightVolumes;
 	short* distortions;
 	int sources;
+	GameDataReader* gameDataReader;
 
 };

@@ -1,5 +1,6 @@
 #include "NncToTs.h"
 
+
 #pragma region Constructors / destructor
 
 /*Default constructor for Nnc
