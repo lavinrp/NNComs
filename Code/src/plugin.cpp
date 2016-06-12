@@ -30,6 +30,7 @@
 
 //Custom includes
 #include "NncToTs.h"
+#include "GameDataReader.h"
 
 using namespace std;
 
@@ -65,6 +66,10 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
 	return 0;
 }
 #endif
+//**************************************NNC Variables***************************************/
+
+//reads data from the game
+GameDataReader* gameDataReader;
 
 /*********************************** Required functions ************************************/
 /*
@@ -126,16 +131,18 @@ int ts3plugin_init() {
 	char pluginPath[PATH_BUFSIZE];
 
     /* Your plugin init code here */
-    printf("PLUGIN: init\n");
 
     /* Example on how to query application, resources and configuration paths from client */
     /* Note: Console client returns empty string for app and resources path */
-    ts3Functions.getAppPath(appPath, PATH_BUFSIZE);
+    /*ts3Functions.getAppPath(appPath, PATH_BUFSIZE);
     ts3Functions.getResourcesPath(resourcesPath, PATH_BUFSIZE);
     ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
 	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE);
 
-	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);
+	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);*/
+
+	gameDataReader = new GameDataReader(ts3Functions);
+	gameDataReader->begin();
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -147,6 +154,7 @@ int ts3plugin_init() {
 void ts3plugin_shutdown() {
     /* Your plugin cleanup code here */
     printf("PLUGIN: shutdown\n");
+	delete gameDataReader;
 
 	/*
 	 * Note:
@@ -185,6 +193,10 @@ void modifySamples(int channels, int channelToChange, short* samples, int sample
 	}
 }
 
+/*Any necessary logic when the user changes channels or connects to a server*/
+void setNncServerIdOnMove(uint64 serverConnectionHandlerID) {
+	gameDataReader->setServerConnectionHandlerID(serverConnectionHandlerID);
+}
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 	//initialize ts values
@@ -251,7 +263,13 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 
 }
 
+void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
+	setNncServerIdOnMove(serverConnectionHandlerID);
+}
 
+void ts3plugin_onClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage) {
+	setNncServerIdOnMove(serverConnectionHandlerID);
+}
 
 /****************************** Optional functions ********************************/
 /*
@@ -826,16 +844,10 @@ void ts3plugin_onUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint
 void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clientID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 }
 
-void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
-}
-
 void ts3plugin_onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility) {
 }
 
 void ts3plugin_onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
-}
-
-void ts3plugin_onClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID moverID, const char* moverName, const char* moverUniqueIdentifier, const char* moveMessage) {
 }
 
 void ts3plugin_onClientKickFromChannelEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage) {
