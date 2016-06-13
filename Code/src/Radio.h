@@ -33,5 +33,10 @@ protected:
 	double volume;
 	bool on;
 	bool broadcasting;
+
+
+	//Do not initialize. Let undefined start value add to randomness.
+	//determines the position of the square wave distortion.
+	unsigned long long currentDistortion;
 };
 

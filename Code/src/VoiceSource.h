@@ -29,8 +29,5 @@ protected:
 	//modifies the rate at which sound degrades over distance
 	const double voiceFalloffModifier = 1;
 
-	//Do not initialize. Let undefined start value add to randomness.
-	//determines the position of the square wave distortion.
-	unsigned long long currentDistortion;
 };
 
