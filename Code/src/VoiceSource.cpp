@@ -21,12 +21,14 @@ VoiceSource::~VoiceSource() {
 #pragma endregion
 
 #pragma region Member Functions
+//TODO (Ryan Lavin): I think this comment says this function is from the wrong perspective. Ensure that userPosition actually is the position of this user - 6/13/2016
+
 /*leftVolume
 Calculates and returns the volume of this VoiceSource for the left ear
 @param userPosition: the location of the user of this ts client
 @return: volume modifier for left ear
 */
-double VoiceSource::leftVolume(Point3D userPosition) {
+double VoiceSource::leftVolume(const Point3D& userPosition) {
 	//E = (PI * A * B * D) / (2* c^2)
 	//E = ans
 	//A = voiceLevel
@@ -38,12 +40,14 @@ double VoiceSource::leftVolume(Point3D userPosition) {
 	return temp / (2 * dist * dist);
 }
 
+//TODO (Ryan Lavin): I think this comment says this function is from the wrong perspective. Ensure that userPosition actually is the position of this user - 6/13/2016
+
 /*rightVolume
 Calculates and returns the volume of this VoiceSource for the right ear
 @param userPosition: the location of the user of this ts client
 @return: volume modifier for right ear
 */
-double VoiceSource::rightVolume(Point3D userPosition) {
+double VoiceSource::rightVolume(const Point3D& userPosition) {
 	//E = (A * B *(2 * pi - D)) / (2 * pi * C^2)
 	//E = ans
 	//A = voiceLevel

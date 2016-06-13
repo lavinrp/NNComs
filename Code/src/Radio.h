@@ -25,6 +25,8 @@ public:
 	bool isBroadcasting();
 	void setBroadcasting(bool broadcasting);
 
+	virtual short nextDistortion(double amplitude);
+
 protected:
 	//member variables
 	double frequency;

@@ -13,8 +13,8 @@ public:
 	virtual ~VoiceSource();
 
 	//Member functions
-	virtual double leftVolume(Point3D userPosition);
-	virtual double rightVolume(Point3D userPosition);
+	virtual double leftVolume(const Point3D& userPosition);
+	virtual double rightVolume(const Point3D& userPosition);
 	virtual short nextDistortion(double amplitude);
 
 	//getters / setters
@@ -28,5 +28,9 @@ protected:
 	double voiceLevel;
 	//modifies the rate at which sound degrades over distance
 	const double voiceFalloffModifier = 1;
+
+	//Do not initialize. Let undefined start value add to randomness.
+	//determines the position of the square wave distortion.
+	unsigned long long currentDistortion;
 };
 

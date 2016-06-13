@@ -94,6 +94,12 @@ sets the serverConnectionHandlerID
 void GameDataReader::setServerConnectionHandlerID(const uint64 serverConnectionHandlerID) {
 	this->serverConnectionHandlerID = serverConnectionHandlerID;
 }
+
+/*getSelfGameID
+returns the gameID of the selfClient*/
+int GameDataReader::getSelfGameID() {
+	return selfGameID;
+}
 #pragma endregion
 
 #pragma region Member Functions
@@ -166,6 +172,7 @@ void GameDataReader::initializePlayer() {
 	}
 	//set metadata to value read from pipe
 	ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, (int)buffer[0]);
+	selfGameID = (int)buffer[0];
 }
 
 /*readVoiceSourceCounts

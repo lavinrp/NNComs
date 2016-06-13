@@ -6,22 +6,37 @@
 /*Default constructor for Nnc
 Sets all pointers to nullptr
 This should really never be used*/
-NncToTs::NncToTs() {
-	this->clientID = 0;
+NncToTs::NncToTs() : NncToTs (0){}
+
+/*Constructor for NncToTs.
+@param clientID: id of the client whose data will be retrieved*/
+NncToTs::NncToTs(anyID clientID) {
+	this->clientID = clientID;
 	this->leftVolumes = nullptr;
 	this->rightVolumes = nullptr;
 	this->distortions = nullptr;
 }
 
-/*Constructor for NncToTs. Retrieves all relevant data for passed clientID.
-@param clientID: id of the client to retrieve data for*/
-NncToTs::NncToTs(anyID clientID) {
-	this->clientID = clientID;
-	this->getNncSoundData();
+/*Constructor for NncToTs
+Stores clientID and gameDataReader
+@param clientID: id of the client whose data will be retrieved
+@param GameDataReader: pointer to the plugin's gameDataReader.
+*/
+NncToTs::NncToTs(anyID clientID, GameDataReader* gameDataReader) : NncToTs(clientID){
+	setGameDataReader(gameDataReader);
+}
+
+/*Constructor for NncToTs
+sets ClientID, ClientGameID, and gameDataReader
+@param clientID: id of the client whose data will be retrieved
+@param gameID: the gameID of the client
+@param GameDataReader: pointer to the plugin's gameDataReader.*/
+NncToTs::NncToTs(anyID clientID, GameID gameID, GameDataReader* gameDataReader) : NncToTs(clientID, gameDataReader) {
+	setClientGameID(gameID);
 }
 
 /*NncToTs Destructor. Frees all memory allocated in NncToTs. Will call delete
-on nullptr if default constructor was used and getnncSoundData was never called*/
+on nullptr if getnncSoundData was never called*/
 NncToTs::~NncToTs() {
 	delete[] leftVolumes;
 	delete[] rightVolumes;
@@ -31,8 +46,43 @@ NncToTs::~NncToTs() {
 
 #pragma region Functions
 
+/*getAudibleSources
+Stores all voice sources that are audible to the selfPlayer
+@param selfPlayer: current usersPlayer. Distances are compared to this player
+@param otherPlayer: player whose voice will be checked for audibility
+@param audibleSources: reference to a list of VoiceSources. This vector will be modified to hold
+all audible voice sources and their distances.*/
+void NncToTs::getAudibleSources(Player* selfPlayer, Player* otherPlayer, vector<VoiceSource*>& audibleSources) {
+	//get audible sources
+	//check distance to the other player
+	double distanceToPlayer = selfPlayer->distance(*otherPlayer);
+	if (distanceToPlayer < maxAudibleDistance) {
+		audibleSources.push_back(otherPlayer);
+	}
+	//get every nearby radio listening to the channel the other player is broadcasting on
+	Radio* activeRadio = otherPlayer->getRadio();
+	if (activeRadio) {
+		if (activeRadio->isBroadcasting()) {
+			bool endOfRadios = false;
+			unsigned int radioNum = 0;
+			while (!endOfRadios) {
+				Radio* selectedRaio = gameDataReader->getRadio(radioNum);
+				if (selectedRaio) {
+					double distanceToRadio = selfPlayer->distance(*selectedRaio);
+					if (selectedRaio->getFrequency() == activeRadio->getFrequency() && distanceToRadio < maxAudibleDistance) {
+						audibleSources.push_back(selectedRaio);
+					}
+					radioNum++;
+				} else {
+					endOfRadios = true;
+				}
+			}
+		}
+	}
+}
+
 /*getNNCPlayerData
-returns all required player data for the given client ID from NNComs
+stores all required player data for the given client ID from NNComs
 @param clientID: id of the client whose voice will be changed
 @param sources: The number of audio sources to emulate. The size of the leftVolumes, rightVolumes and distortions arrays
 @param leftVolumes: array of volumes to be applied to the left headphone channel for each emulated audio source
@@ -40,30 +90,43 @@ returns all required player data for the given client ID from NNComs
 @param distortions: array of audio distortions to apply to each emulated audio source*/
 void NncToTs::getNncSoundData() {
 
-	//Find number of audio sources
-	sources = 1;
+	Player* otherPlayer = gameDataReader->getPlayer(clientGameID);
+	Player* selfPlayer = gameDataReader->getPlayer(gameDataReader->getSelfGameID());
+
+	//Find number of audible sources and their distances from the selfPlayer
+	vector<VoiceSource*> audibleSources;
+	getAudibleSources(selfPlayer, otherPlayer, audibleSources);
+	sources = audibleSources.size();
 
 	//Find left and right volumes for each source
 	leftVolumes = new float[sources];
-	leftVolumes[0] = 0.3f;
-
 	rightVolumes = new float[sources];
-	rightVolumes[0] = 0;
+	for (unsigned int i = 0; i < sources; i++) {
+		//TODO (Ryan Lavin): the comments of left and right volume indicate that the following statements are backwards. I don't believe them. Check this -6/13/2016
+		leftVolumes[i] = selfPlayer->leftVolume(*audibleSources[i]);
+		rightVolumes[i] = selfPlayer->rightVolume(*audibleSources[i]);
+	}
 
 	//Find distortions of each source
 	distortions = new short[sources];
 	//TODO(Ryan Lavin): if this array is not initialized it creates cool static. Use this. - 5/22/2016
-	distortions[0] = 0;
+	for (unsigned int i = 0; i < sources; ++i) {
+		distortions[i] = audibleSources[i]->nextDistortion(1);
+	}
 }
 
 /*isNncMuted
 Mutes the client if it should be muted. Returns true if the client is muted. Returns false otherwise
-@param clientID: the ID of the client whose muted status is being checked
 @return: true if the client is muted by NNC false otherwise*/
 bool NncToTs::isNncMuted() {
-	//TODO: fill isNncMuted stub
-	return false;
+	//TODO(Ryan Lavin): mute players too far away to be audible - 6/12/2016
+	//everyone who is not in game should be muted
+	if (clientGameID) {
+		return false;
+	}
+	return true;
 }
+
 #pragma endregion
 
 #pragma region Getters / Setters
@@ -97,6 +160,25 @@ short NncToTs::getDistortion(unsigned int position) {
 
 int NncToTs::getSources() {
 	return this->sources;
+}
+
+/*setGameDataReader
+determines where nnc to TS will get game data from
+*/
+void NncToTs::setGameDataReader(GameDataReader* gameDataReader) {
+	this->gameDataReader = gameDataReader;
+}
+
+GameDataReader* NncToTs::getGameDataReader() {
+	return this->gameDataReader;
+}
+
+GameID NncToTs::getClientGameID() {
+	return clientGameID;
+}
+
+void NncToTs::setClientGameID(GameID clientGameID) {
+	this->clientGameID = clientGameID;
 }
 
 #pragma endregion

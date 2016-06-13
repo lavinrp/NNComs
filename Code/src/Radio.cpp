@@ -94,4 +94,16 @@ Set to true if the radio should broadcast. set to false otherwise.
 void Radio::setBroadcasting(bool broadcasting) {
 	this->broadcasting = broadcasting;
 }
+
+/*returns the next distortion value (square wave) for the radio*/
+short Radio::nextDistortion(double amplitude) {
+	currentDistortion++;
+	int distortionValue;
+	if (currentDistortion % 10 > 5) {
+		distortionValue = 10;
+	} else {
+		distortionValue = -10;
+	}
+	return amplitude * distortionValue;
+}
 #pragma endregion

@@ -199,12 +199,19 @@ void setNncServerIdOnMove(uint64 serverConnectionHandlerID) {
 }
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
+	
+	//get gameID of the client
+	int* clientGameIDPointer;
+	ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, clientID, CLIENT_META_DATA, clientGameIDPointer);
+	GameID clientGameID = (GameID)(*clientGameIDPointer);
+
 	//initialize ts values
-	NncToTs nncData(clientID);
+	NncToTs nncData(clientID, clientGameID, gameDataReader);
 
 	//end early if no sound can come from selected client
 	if (nncData.isNncMuted()) {
 		return;
+		//TODO (Ryan Lavin): actually mute client here via ts. Be sure to unmute if not NNC muted - 6/13/2016
 	}
 
 	//Initialize NNC sound values
@@ -255,12 +262,6 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 	//apply audio changes to left and right ears individually
 	modifySamples(CHANNEL_SPACE, LEFT_CHANNEL, samples, sampleCount, sources, leftVolumes, distortions);
 	modifySamples(CHANNEL_SPACE, RIGHT_CHANNEL, samples, sampleCount, sources, rightVolumes, distortions);
-
-	//must free memory from getNncSoundData
-	/*delete[] leftVolumes;
-	delete[] rightVolumes;
-	delete[] distortions;*/
-
 }
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {

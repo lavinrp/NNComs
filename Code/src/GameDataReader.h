@@ -7,6 +7,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include "teamspeak/public_definitions.h"
+#include "ts3_functions.h"
+
+
 #include "Player.h"
 #include "Radio.h"
 
@@ -49,6 +53,8 @@ public:
 		//radio
 	Radio* getRadio(unsigned int position);
 
+	int getSelfGameID();
+
 	//Member functions
 	void begin();
 
@@ -72,6 +78,7 @@ protected:
 	//gameData
 	unordered_map <GameID, Player*> players;
 	vector<Radio*> radios;
+	int selfGameID;
 
 	//connection
 	bool connectedStatus;
