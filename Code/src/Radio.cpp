@@ -104,6 +104,6 @@ short Radio::nextDistortion(double amplitude) {
 	} else {
 		distortionValue = -10;
 	}
-	return amplitude * distortionValue;
+	return (short)(amplitude * distortionValue);
 }
 #pragma endregion
