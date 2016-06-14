@@ -11,7 +11,7 @@
 #include "teamspeak/public_definitions.h"
 #include "ts3_functions.h"
 
-
+#include "UniversalConsts.h"
 #include "Player.h"
 #include "Radio.h"
 
@@ -48,11 +48,14 @@ public:
 	bool isConnected();
 	void setServerConnectionHandlerID(const uint64 serverConnectionHandlerID);
 
+	mutex gameDataMutex;
+
 		//player
 	shared_ptr<Player> getPlayer(GameID gameID);
 
 		//radio
 	shared_ptr<Radio> getRadio(unsigned int position);
+
 
 	int getSelfGameID();
 

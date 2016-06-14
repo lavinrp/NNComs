@@ -163,6 +163,7 @@
     <ClInclude Include="plugin.h" />
     <ClInclude Include="Point3D.h" />
     <ClInclude Include="Radio.h" />
+    <ClInclude Include="UniversalConsts.h" />
     <ClInclude Include="VoiceSource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

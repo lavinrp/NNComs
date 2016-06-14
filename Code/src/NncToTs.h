@@ -2,6 +2,7 @@
 
 #include <tuple>
 
+#include "UniversalConsts.h"
 #include "GameDataReader.h"
 #include "VoiceSource.h"
 #include "Player.h"

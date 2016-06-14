@@ -66,7 +66,7 @@ void NncToTs::getAudibleSources(shared_ptr<Player> selfPlayer, shared_ptr<Player
 			bool endOfRadios = false;
 			unsigned int radioNum = 0;
 			while (!endOfRadios) {
-				shared_ptr<Radio> selectedRaio = gameDataReader->getRadio(radioNum);
+				shared_ptr<Radio> selectedRaio = gameDataReader->getRadio(radioNum); 
 				if (selectedRaio) {
 					double distanceToRadio = selfPlayer->distance(*selectedRaio);
 					if (selectedRaio->getFrequency() == activeRadio->getFrequency() && distanceToRadio < maxAudibleDistance) {
@@ -89,6 +89,10 @@ stores all required player data for the given client ID from NNComs
 @param rightVolumes: array of volumes to be applied to the right headphone channel for each emulated audio source
 @param distortions: array of audio distortions to apply to each emulated audio source*/
 void NncToTs::getNncSoundData() {
+	//ensure that game data reader does not change values while they are being used in calculations
+	while (!gameDataReader->gameDataMutex.try_lock()) {
+		this_thread::sleep_for(THREAD_WAIT);
+	}
 
 	shared_ptr<Player> otherPlayer = gameDataReader->getPlayer(clientGameID);
 	shared_ptr<Player> selfPlayer = gameDataReader->getPlayer(gameDataReader->getSelfGameID());
@@ -113,6 +117,9 @@ void NncToTs::getNncSoundData() {
 	for (int i = 0; i < sources; ++i) {
 		distortions[i] = audibleSources[i]->nextDistortion(1);
 	}
+
+	//allow game data reader to continue reading game data
+	gameDataReader->gameDataMutex.unlock();
 }
 
 /*isNncMuted
