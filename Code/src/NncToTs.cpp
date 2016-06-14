@@ -52,7 +52,7 @@ Stores all voice sources that are audible to the selfPlayer
 @param otherPlayer: player whose voice will be checked for audibility
 @param audibleSources: reference to a list of VoiceSources. This vector will be modified to hold
 all audible voice sources and their distances.*/
-void NncToTs::getAudibleSources(Player* selfPlayer, Player* otherPlayer, vector<VoiceSource*>& audibleSources) {
+void NncToTs::getAudibleSources(shared_ptr<Player> selfPlayer, shared_ptr<Player> otherPlayer, vector<shared_ptr<VoiceSource>>& audibleSources) {
 	//get audible sources
 	//check distance to the other player
 	double distanceToPlayer = selfPlayer->distance(*otherPlayer);
@@ -60,13 +60,13 @@ void NncToTs::getAudibleSources(Player* selfPlayer, Player* otherPlayer, vector<
 		audibleSources.push_back(otherPlayer);
 	}
 	//get every nearby radio listening to the channel the other player is broadcasting on
-	Radio* activeRadio = otherPlayer->getRadio();
+	shared_ptr<Radio> activeRadio = otherPlayer->getRadio();
 	if (activeRadio) {
 		if (activeRadio->isBroadcasting()) {
 			bool endOfRadios = false;
 			unsigned int radioNum = 0;
 			while (!endOfRadios) {
-				Radio* selectedRaio = gameDataReader->getRadio(radioNum);
+				shared_ptr<Radio> selectedRaio = gameDataReader->getRadio(radioNum);
 				if (selectedRaio) {
 					double distanceToRadio = selfPlayer->distance(*selectedRaio);
 					if (selectedRaio->getFrequency() == activeRadio->getFrequency() && distanceToRadio < maxAudibleDistance) {
@@ -90,18 +90,18 @@ stores all required player data for the given client ID from NNComs
 @param distortions: array of audio distortions to apply to each emulated audio source*/
 void NncToTs::getNncSoundData() {
 
-	Player* otherPlayer = gameDataReader->getPlayer(clientGameID);
-	Player* selfPlayer = gameDataReader->getPlayer(gameDataReader->getSelfGameID());
+	shared_ptr<Player> otherPlayer = gameDataReader->getPlayer(clientGameID);
+	shared_ptr<Player> selfPlayer = gameDataReader->getPlayer(gameDataReader->getSelfGameID());
 
 	//Find number of audible sources and their distances from the selfPlayer
-	vector<VoiceSource*> audibleSources;
+	vector<shared_ptr<VoiceSource>> audibleSources;
 	getAudibleSources(selfPlayer, otherPlayer, audibleSources);
 	sources = audibleSources.size();
 
 	//Find left and right volumes for each source
 	leftVolumes = new float[sources];
 	rightVolumes = new float[sources];
-	for (unsigned int i = 0; i < sources; i++) {
+	for (int i = 0; i < sources; i++) {
 		//TODO (Ryan Lavin): the comments of left and right volume indicate that the following statements are backwards. I don't believe them. Check this -6/13/2016
 		leftVolumes[i] = selfPlayer->leftVolume(*audibleSources[i]);
 		rightVolumes[i] = selfPlayer->rightVolume(*audibleSources[i]);
@@ -110,7 +110,7 @@ void NncToTs::getNncSoundData() {
 	//Find distortions of each source
 	distortions = new short[sources];
 	//TODO(Ryan Lavin): if this array is not initialized it creates cool static. Use this. - 5/22/2016
-	for (unsigned int i = 0; i < sources; ++i) {
+	for (int i = 0; i < sources; ++i) {
 		distortions[i] = audibleSources[i]->nextDistortion(1);
 	}
 }

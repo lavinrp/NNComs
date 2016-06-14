@@ -1,7 +1,7 @@
 #pragma once
 
 #include<vector>
-
+#include<memory>
 
 #include "VoiceSource.h"
 #include "Radio.h"
@@ -28,15 +28,15 @@ public:
 	virtual ~Player();
 
 	//getters / setters
-	Radio* getRadio();
-	void setRadio(Radio* radio);
+	shared_ptr<Radio> getRadio();
+	void setRadio(shared_ptr<Radio> radio);
 
 	anyID getTsID();
 	void setTsID(anyID id);
 
 protected:
 	//currently selected radio
-	Radio* radio;
+	shared_ptr<Radio> radio;
 	//TS identification number
 	anyID tsID;
 };

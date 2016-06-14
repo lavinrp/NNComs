@@ -53,7 +53,7 @@ public:
 private:
 
 	//functions
-	void getAudibleSources(Player* selfPlayer, Player* otherPlayer, vector<VoiceSource*>& audibleSources);
+	void getAudibleSources(shared_ptr<Player> selfPlayer, shared_ptr<Player> otherPlayer, vector<shared_ptr<VoiceSource>>& audibleSources);
 
 	//member variables
 	GameID clientGameID;

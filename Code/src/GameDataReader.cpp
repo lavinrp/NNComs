@@ -24,14 +24,8 @@ defaults to 0 and must be set at a later time.
 GameDataReader::GameDataReader(const TS3Functions ts3Functions) : GameDataReader(ts3Functions, 0) {}
 
 GameDataReader::~GameDataReader() {
-	//free radio memory
-	for (Radio* radio : radios) {
-		delete radio;
-	}
-	//free player memory
-	for (unordered_map<GameID, Player*>::iterator it = players.begin(); it != players.end(); it++) {
-		delete it->second;
-	}
+	//radio memory automatically freed
+	//player memory automatically freed
 }
 #pragma endregion
 
@@ -63,9 +57,9 @@ void GameDataReader::setConnectedStatus(bool status) {
 /*getPlayer
 finds the player with the passed gameID
 @param gameID: in game ID of the player to find
-@return: Return a pointer to the player with the passed gameID if one exists. Return nullptr otherwise.*/
-Player* GameDataReader::getPlayer(GameID gameID) {
-	unordered_map<GameID, Player*>::iterator playerIterator;
+@return: Return a shared_ptr to the player with the passed gameID if one exists. Return nullptr otherwise.*/
+shared_ptr<Player> GameDataReader::getPlayer(GameID gameID) {
+	unordered_map<GameID, shared_ptr<Player>>::iterator playerIterator;
 	playerIterator = players.find(gameID);
 
 	if ( playerIterator != players.end() ) {
@@ -80,7 +74,7 @@ returns the requested radio
 @param position: the position of the radio to return
 @return: Pointer to the radio at the passed position in GameDataReaders radio vector. nullptr if
 the requested radio does not exist.*/
-Radio* GameDataReader::getRadio(unsigned int position) {
+shared_ptr<Radio> GameDataReader::getRadio(unsigned int position) {
 	if (radios.size() > position) {
 		return radios[position];
 	} else {
@@ -230,7 +224,7 @@ void GameDataReader::readRadios(const INT64 radioCount) {
 		bool broadcasting = (bool)buffer[7];
 
 		//update or create radio
-		Radio* readRadio = getRadio(i);
+		shared_ptr<Radio> readRadio = getRadio(i);
 		if (readRadio) {
 			readRadio->setX(xpos);
 			readRadio->setY(ypos);
@@ -239,7 +233,7 @@ void GameDataReader::readRadios(const INT64 radioCount) {
 
 		} else {
 			//create radio and store it
-			readRadio = new Radio(xpos, ypos, zpos, frequency);
+			readRadio = make_shared<Radio>(xpos, ypos, zpos, frequency);
 			radios.push_back(readRadio);
 		}
 		readRadio->setVoiceLevel(voiceLevel);
@@ -275,7 +269,7 @@ void GameDataReader::readPlayers(const INT64 playerCount) {
 		GameID gameID = (GameID)buffer[5];
 
 		//update or create player
-		Player* readPlayer = getPlayer(gameID);
+		shared_ptr<Player> readPlayer = getPlayer(gameID);
 		if (readPlayer) {
 			readPlayer->setX(xpos);
 			readPlayer->setY(ypos);
@@ -283,11 +277,11 @@ void GameDataReader::readPlayers(const INT64 playerCount) {
 			
 		} else {
 			//create and store player
-			readPlayer = new Player(xpos, ypos, zpos);
+			readPlayer = make_shared<Player>(xpos, ypos, zpos);
 			players.emplace(gameID, readPlayer);
 		}
 		readPlayer->setVoiceLevel(voiceLevel);
-		Radio* selectedRadio = getRadio(radioPosition);
+		shared_ptr<Radio> selectedRadio = getRadio(radioPosition);
 		readPlayer->setRadio(selectedRadio);
 	}
 }

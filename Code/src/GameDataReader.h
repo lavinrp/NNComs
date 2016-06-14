@@ -6,6 +6,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include "teamspeak/public_definitions.h"
 #include "ts3_functions.h"
@@ -48,10 +49,10 @@ public:
 	void setServerConnectionHandlerID(const uint64 serverConnectionHandlerID);
 
 		//player
-	Player* getPlayer(GameID gameID);
+	shared_ptr<Player> getPlayer(GameID gameID);
 
 		//radio
-	Radio* getRadio(unsigned int position);
+	shared_ptr<Radio> getRadio(unsigned int position);
 
 	int getSelfGameID();
 
@@ -76,8 +77,8 @@ protected:
 
 	//Member variables
 	//gameData
-	unordered_map <GameID, Player*> players;
-	vector<Radio*> radios;
+	unordered_map <GameID, shared_ptr<Player>> players;
+	vector<shared_ptr<Radio>> radios;
 	int selfGameID;
 
 	//connection

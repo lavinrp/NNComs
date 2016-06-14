@@ -29,14 +29,14 @@ Player::~Player() {
 /*getRadio
 returns the players equipped radio
 */
-Radio* Player::getRadio() {
+shared_ptr<Radio> Player::getRadio() {
 	return radio;
 }
 
 /*setRadio
 Sets the players currently equipped radio
 @param radio: pointer to the players radio. Set to nullptr if player has no radio*/
-void Player::setRadio(Radio* radio) {
+void Player::setRadio(shared_ptr<Radio> radio) {
 	this->radio = radio;
 }
 
