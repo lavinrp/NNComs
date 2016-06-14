@@ -245,6 +245,12 @@ void GameDataReader::readRadios(const INT64 radioCount) {
 		readRadio->setOn(on);
 		readRadio->setBroadcasting(broadcasting);
 	}
+
+	//crop radios vector to fit new number of radios
+	if (radioCount < radios.size()) {
+		//erase radios at position radioCount to end
+		radios.erase(radios.begin() + radioCount, radios.end());
+	}
 }
 
 /*readPlayers
