@@ -96,7 +96,7 @@ void NncToTs::getNncSoundData() {
 	//Find number of audible sources and their distances from the selfPlayer
 	vector<shared_ptr<VoiceSource>> audibleSources;
 	getAudibleSources(selfPlayer, otherPlayer, audibleSources);
-	sources = audibleSources.size();
+	sources = (int)audibleSources.size();
 
 	//Find left and right volumes for each source
 	leftVolumes = new float[sources];
