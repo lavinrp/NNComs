@@ -138,11 +138,9 @@ Only exits on bad read.*/
 void GameDataReader::readFromPipe() {
 
 	//initialize this users in game ID and display in metadata
-	initializePlayer();
+	bool goodData = initializePlayer();
 
 	//continually read from pipe
-	bool goodData = true;
-
 	while (goodData) {
 		//find the number of each type of voice source to read
 		VoiceSourceCounts voiceSourceCounts = readVoiceSourceCounts();
@@ -160,24 +158,32 @@ void GameDataReader::readFromPipe() {
 }
 
 /*initializePlayer
-Sets current users Teamspeak metadata to the value passed by 
+Sets current users Teamspeak metadata to the value passed by
+@return: true if data successfully set. False otherwise.
 */
-void GameDataReader::initializePlayer() {
+bool GameDataReader::initializePlayer() {
 	//initialize pipe variables
 	INT64 buffer[INIT_BUFFER_SIZE];
 	DWORD bytesRead = 0;
 	bool readResult = false;
-	while (!readResult) {
 		readResult = ReadFile(
 			pipeHandle,				//pipe
 			buffer,					//Write location
 			sizeof(INT64),			//number of bytes to read
 			&bytesRead,				//bytes read
 			NULL);					//Overlapped
-	}
+
+		//return on bad read
+		if (!readResult) {
+			return false;
+		}
+
 	//set metadata to value read from pipe
 	ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, (int)buffer[0]);
 	selfGameID = (int)buffer[0];
+
+	//good read. All data set.
+	return true;
 }
 
 /*readVoiceSourceCounts

@@ -70,7 +70,7 @@ protected:
 
 	void readFromPipe();
 
-	void initializePlayer();
+	bool initializePlayer();
 
 	VoiceSourceCounts readVoiceSourceCounts();
 
