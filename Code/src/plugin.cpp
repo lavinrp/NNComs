@@ -200,6 +200,11 @@ void setNncServerIdOnMove(uint64 serverConnectionHandlerID) {
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 	
+	//exit early if not connected to game
+	if (!gameDataReader->isConnected()) {
+		return;
+	}
+
 	//get gameID of the client
 	int* clientGameIDPointer;
 	ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, clientID, CLIENT_META_DATA, clientGameIDPointer);
@@ -208,25 +213,24 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 	//initialize ts values
 	NncToTs nncData(clientID, clientGameID, gameDataReader);
 
-	//end early if no sound can come from selected client
-	if (nncData.isNncMuted()) {
-		return;
-		//TODO (Ryan Lavin): actually mute client here via ts. Be sure to unmute if not NNC muted - 6/13/2016
-	}
-
-	//Initialize NNC sound values
-	/*float* leftVolumes = NULL;
-	float* rightVolumes = NULL;
-	short* distortions = NULL;*/
-
-	/*float leftVolumes[1] = {.1};
-	float rightVolumes[1] = {0};
-	short distortions[1] = {0};
-*/
-
 	//Get sound modification values from NNC
 	nncData.getNncSoundData();
 	int sources = nncData.getSources();
+
+	//unmute the client if it can be heard
+	if (sources && clientGameID) {
+		int muted = 0;
+		ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, clientID, CLIENT_IS_MUTED, &muted);
+		if ((bool)muted) {
+			ts3Functions.requestUnmuteClients(serverConnectionHandlerID, &clientID, NULL);
+		}
+	} else {
+		//mute client and exit function early if client cannot be heard
+		ts3Functions.requestMuteClients(serverConnectionHandlerID, &clientID, NULL);
+		return;
+	}
+
+	//calculate output modifications
 	float* leftVolumes = nncData.getLeftVolumes();
 	float* rightVolumes = nncData.getRightVolumes();
 	short* distortions = nncData.getDistortions();

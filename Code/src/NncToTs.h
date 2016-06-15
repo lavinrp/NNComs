@@ -23,7 +23,6 @@ public:
 
 	//Member functions
 	void getNncSoundData();
-	bool isNncMuted();
 
 	//getters and setters
 

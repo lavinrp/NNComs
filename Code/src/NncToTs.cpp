@@ -102,36 +102,27 @@ void NncToTs::getNncSoundData() {
 	getAudibleSources(selfPlayer, otherPlayer, audibleSources);
 	sources = (int)audibleSources.size();
 
-	//Find left and right volumes for each source
-	leftVolumes = new float[sources];
-	rightVolumes = new float[sources];
-	for (int i = 0; i < sources; i++) {
-		//TODO (Ryan Lavin): the comments of left and right volume indicate that the following statements are backwards. I don't believe them. Check this -6/13/2016
-		leftVolumes[i] = selfPlayer->leftVolume(*audibleSources[i]);
-		rightVolumes[i] = selfPlayer->rightVolume(*audibleSources[i]);
-	}
+	//only calculate sound modifications if there are any audible sources
+	if (sources) {
+		//Find left and right volumes for each source
+		leftVolumes = new float[sources];
+		rightVolumes = new float[sources];
+		for (int i = 0; i < sources; i++) {
+			//TODO (Ryan Lavin): the comments of left and right volume indicate that the following statements are backwards. I don't believe them. Check this -6/13/2016
+			leftVolumes[i] = selfPlayer->leftVolume(*audibleSources[i]);
+			rightVolumes[i] = selfPlayer->rightVolume(*audibleSources[i]);
+		}
 
-	//Find distortions of each source
-	distortions = new short[sources];
-	//TODO(Ryan Lavin): if this array is not initialized it creates cool static. Use this. - 5/22/2016
-	for (int i = 0; i < sources; ++i) {
-		distortions[i] = audibleSources[i]->nextDistortion(1);
+		//Find distortions of each source
+		distortions = new short[sources];
+		//TODO(Ryan Lavin): if this array is not initialized it creates cool static. Use this. - 5/22/2016
+		for (int i = 0; i < sources; ++i) {
+			distortions[i] = audibleSources[i]->nextDistortion(1);
+		}
 	}
 
 	//allow game data reader to continue reading game data
 	gameDataReader->gameDataMutex.unlock();
-}
-
-/*isNncMuted
-Mutes the client if it should be muted. Returns true if the client is muted. Returns false otherwise
-@return: true if the client is muted by NNC false otherwise*/
-bool NncToTs::isNncMuted() {
-	//TODO(Ryan Lavin): mute players too far away to be audible - 6/12/2016
-	//everyone who is not in game should be muted
-	if (clientGameID) {
-		return false;
-	}
-	return true;
 }
 
 #pragma endregion
