@@ -74,9 +74,9 @@ protected:
 
 	VoiceSourceCounts readVoiceSourceCounts();
 
-	void readPlayers(const INT64 playerCount);
+	bool readPlayers(const INT64 playerCount);
 
-	void readRadios(INT64 radioCount);
+	bool readRadios(INT64 radioCount);
 
 	//Member variables
 	//gameData

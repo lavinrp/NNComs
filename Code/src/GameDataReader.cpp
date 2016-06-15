@@ -134,22 +134,29 @@ bool GameDataReader::connectToPipe() {
 /*readFromPipe
 Reads data from game pipe.
 Stores game pipe data.
-Maintains game pipe connection.*/
+Only exits on bad read.*/
 void GameDataReader::readFromPipe() {
 
 	//initialize this users in game ID and display in metadata
 	initializePlayer();
 
-	//find the number of each type of voice source to read
-	VoiceSourceCounts voiceSourceCounts = readVoiceSourceCounts();
+	//continually read from pipe
+	bool goodData = true;
 
-	//read and create players and radios
-	while (!gameDataMutex.try_lock() ){
-		this_thread::sleep_for(THREAD_WAIT);
+	while (goodData) {
+		//find the number of each type of voice source to read
+		VoiceSourceCounts voiceSourceCounts = readVoiceSourceCounts();
+
+		//read and create players and radios
+		while (!gameDataMutex.try_lock() ){
+			this_thread::sleep_for(THREAD_WAIT);
+		}
+		bool radioSuccess = readRadios(voiceSourceCounts.radioCount);
+		bool playerSuccess = readPlayers(voiceSourceCounts.playerCount);
+		gameDataMutex.unlock();
+
+		goodData = radioSuccess && playerSuccess;
 	}
-	readRadios(voiceSourceCounts.radioCount);
-	readPlayers(voiceSourceCounts.playerCount);
-	gameDataMutex.unlock();
 }
 
 /*initializePlayer
@@ -201,20 +208,24 @@ VoiceSourceCounts GameDataReader::readVoiceSourceCounts() {
 
 /*readRadio
 reads the radios passed through the pipe.
-@param radioCount the number of radios that is expected to be sent by the pipe*/
-void GameDataReader::readRadios(const INT64 radioCount) {
+@param radioCount the number of radios that is expected to be sent by the pipe
+@return: true if all reads and operations successful. False otherwise. */
+bool GameDataReader::readRadios(const INT64 radioCount) {
 	for (unsigned int i = 0; i < radioCount; i++) {
 		//read enough values to fill a radio
 		double buffer[DOUBLES_PER_RADIO];
 		DWORD bytesRead = 0;
 		bool readResult = false;
-		while (!readResult) {
-			readResult = ReadFile(
-				pipeHandle,								//pipe
-				buffer,									//Write location
-				DOUBLES_PER_RADIO * sizeof(double),		//number of bytes to read
-				&bytesRead,								//bytes read
-				NULL);									//Overlapped
+		readResult = ReadFile(
+			pipeHandle,								//pipe
+			buffer,									//Write location
+			DOUBLES_PER_RADIO * sizeof(double),		//number of bytes to read
+			&bytesRead,								//bytes read
+			NULL);									//Overlapped
+
+		//return with false on bad read
+		if (!readResult) {
+			return false;
 		}
 
 		//values from pipe
@@ -251,24 +262,31 @@ void GameDataReader::readRadios(const INT64 radioCount) {
 		//erase radios at position radioCount to end
 		radios.erase(radios.begin() + radioCount, radios.end());
 	}
+
+	//return true if all reads and operations successful
+	return true;
 }
 
 /*readPlayers
 reads the players pass through the pipe.
-@param playerCount: number of players that is expected to be sent by the pipe*/
-void GameDataReader::readPlayers(const INT64 playerCount) {
+@param playerCount: number of players that is expected to be sent by the pipe
+@return: true if successful with all reads. False otherwise.*/
+bool GameDataReader::readPlayers(const INT64 playerCount) {
 	for (unsigned int i = 0; i < playerCount; i++) {
 		//read enough values to fill a player
 		double buffer[DOUBLES_PER_PLAYER];
 		DWORD bytesRead = 0;
 		bool readResult = false;
-		while (!readResult) {
-			readResult = ReadFile(
-				pipeHandle,								//pipe
-				buffer,									//Write location
-				DOUBLES_PER_PLAYER * sizeof(double),	//number of bytes to read
-				&bytesRead,								//bytes read
-				NULL);									//Overlapped
+		readResult = ReadFile(
+			pipeHandle,								//pipe
+			buffer,									//Write location
+			DOUBLES_PER_PLAYER * sizeof(double),	//number of bytes to read
+			&bytesRead,								//bytes read
+			NULL);									//Overlapped
+
+		//return if bad read
+		if (!readResult) {
+			return false;
 		}
 
 		double xpos = buffer[0];
@@ -294,6 +312,9 @@ void GameDataReader::readPlayers(const INT64 playerCount) {
 		shared_ptr<Radio> selectedRadio = getRadio(radioPosition);
 		readPlayer->setRadio(selectedRadio);
 	}
+
+	//return true if all reads good
+	return true;
 }
 
 /*collectGameData
