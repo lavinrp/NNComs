@@ -276,6 +276,40 @@ void ts3plugin_onClientMoveMovedEvent(uint64 serverConnectionHandlerID, anyID cl
 	setNncServerIdOnMove(serverConnectionHandlerID);
 }
 
+
+#pragma region hotkeys
+
+/* Helper function to create a hotkey */
+static struct PluginHotkey* createHotkey(const char* keyword, const char* description) {
+	struct PluginHotkey* hotkey = (struct PluginHotkey*)malloc(sizeof(struct PluginHotkey));
+	_strcpy(hotkey->keyword, PLUGIN_HOTKEY_BUFSZ, keyword);
+	_strcpy(hotkey->description, PLUGIN_HOTKEY_BUFSZ, description);
+	return hotkey;
+}
+
+/* Some makros to make the code to create hotkeys a bit more readable */
+#define BEGIN_CREATE_HOTKEYS(x) const size_t sz = x + 1; size_t n = 0; *hotkeys = (struct PluginHotkey**)malloc(sizeof(struct PluginHotkey*) * sz);
+#define CREATE_HOTKEY(a, b) (*hotkeys)[n++] = createHotkey(a, b);
+#define END_CREATE_HOTKEYS (*hotkeys)[n++] = NULL; assert(n == sz);
+
+/*
+* Initialize plugin hotkeys. If your plugin does not use this feature, this function can be omitted.
+* Hotkeys require ts3plugin_registerPluginID and ts3plugin_freeMemory to be implemented.
+* This function is automatically called by the client after ts3plugin_init.
+*/
+void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
+	/* Register hotkeys giving a keyword and a description.
+	* The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
+	* The description is shown in the clients hotkey dialog. */
+	BEGIN_CREATE_HOTKEYS(1);  /* Create 1 hotkeys. Size must be correct for allocating memory. */
+	CREATE_HOTKEY("Key Radio", "Begin broadcasting over a NNC radio");
+	END_CREATE_HOTKEYS;
+
+	/* The client will call ts3plugin_freeMemory to release all allocated memory */
+}
+#pragma endregion
+
+
 /****************************** Optional functions ********************************/
 /*
  * Following functions are optional, if not needed you don't need to implement them.
@@ -696,37 +730,6 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	/* ts3Functions.setPluginMenuEnabled(pluginID, MENU_ID_GLOBAL_2, 0); */
 
 	/* All memory allocated in this function will be automatically released by the TeamSpeak client later by calling ts3plugin_freeMemory */
-}
-
-/* Helper function to create a hotkey */
-static struct PluginHotkey* createHotkey(const char* keyword, const char* description) {
-	struct PluginHotkey* hotkey = (struct PluginHotkey*)malloc(sizeof(struct PluginHotkey));
-	_strcpy(hotkey->keyword, PLUGIN_HOTKEY_BUFSZ, keyword);
-	_strcpy(hotkey->description, PLUGIN_HOTKEY_BUFSZ, description);
-	return hotkey;
-}
-
-/* Some makros to make the code to create hotkeys a bit more readable */
-#define BEGIN_CREATE_HOTKEYS(x) const size_t sz = x + 1; size_t n = 0; *hotkeys = (struct PluginHotkey**)malloc(sizeof(struct PluginHotkey*) * sz);
-#define CREATE_HOTKEY(a, b) (*hotkeys)[n++] = createHotkey(a, b);
-#define END_CREATE_HOTKEYS (*hotkeys)[n++] = NULL; assert(n == sz);
-
-/*
- * Initialize plugin hotkeys. If your plugin does not use this feature, this function can be omitted.
- * Hotkeys require ts3plugin_registerPluginID and ts3plugin_freeMemory to be implemented.
- * This function is automatically called by the client after ts3plugin_init.
- */
-void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
-	/* Register hotkeys giving a keyword and a description.
-	 * The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
-	 * The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(3);  /* Create 3 hotkeys. Size must be correct for allocating memory. */
-	CREATE_HOTKEY("keyword_1", "Test hotkey 1");
-	CREATE_HOTKEY("keyword_2", "Test hotkey 2");
-	CREATE_HOTKEY("keyword_3", "Test hotkey 3");
-	END_CREATE_HOTKEYS;
-
-	/* The client will call ts3plugin_freeMemory to release all allocated memory */
 }
 
 /************************** TeamSpeak callbacks ***************************/
