@@ -56,6 +56,9 @@ public:
 		//radio
 	shared_ptr<Radio> getRadio(unsigned int position);
 
+		//TS
+	void setPttStatus(bool status);
+
 
 	int getSelfGameID();
 
@@ -98,5 +101,6 @@ protected:
 	//TS3 stuff
 	TS3Functions ts3Functions;
 	uint64 serverConnectionHandlerID;
+	bool pttLastValue;
 };
 

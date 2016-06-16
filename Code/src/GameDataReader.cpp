@@ -1,4 +1,5 @@
 #include "ts3_functions.h"
+#include "teamspeak/public_errors.h"
 #include "plugin_definitions.h"
 #include "GameDataReader.h"
 
@@ -16,6 +17,7 @@ GameDataReader::GameDataReader(const TS3Functions ts3Functions, const uint64 ser
 	continueDataCollection = true;
 	this->ts3Functions = ts3Functions;
 	this->serverConnectionHandlerID = serverConnectionHandlerID;
+	pttLastValue = false;
 }
 
 /*Constructor for game data reader. server connection handler 
@@ -93,6 +95,52 @@ void GameDataReader::setServerConnectionHandlerID(const uint64 serverConnectionH
 returns the gameID of the selfClient*/
 int GameDataReader::getSelfGameID() {
 	return selfGameID;
+}
+
+/*setPttStatus
+Toggles the TS INPUT_ACTIVE property. Should be used to turn on self client microphone
+in conjunction with in game radio broadcasts. Does nothing if value is set to previous value.
+sets pttLastValue to the passed status.
+@param status: true to toggle talking on. False to toggle talking off.*/
+void GameDataReader::setPttStatus(bool status) {
+	if (status != pttLastValue) {
+		//get myID
+		anyID myID;
+		if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+			//handle error
+			ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+			return;
+		}
+
+		//set players talking status to the passed value
+		unsigned int error;
+		bool shouldTalk;
+		shouldTalk = status; 
+		if ((error = ts3Functions.setClientSelfVariableAsInt(myID, CLIENT_INPUT_DEACTIVATED,
+			shouldTalk ? INPUT_ACTIVE : INPUT_DEACTIVATED))
+			!= ERROR_ok) {
+			//handle error
+			char* errorMsg;
+			if (ts3Functions.getErrorMessage(error, &errorMsg) != ERROR_ok) {
+				ts3Functions.logMessage(errorMsg, LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+
+				ts3Functions.freeMemory(errorMsg);
+			}
+			return;
+		}
+
+		//update other users
+		if (ts3Functions.flushClientSelfUpdates(myID, NULL) != ERROR_ok) {
+			//handle error
+			char* errorMsg;
+			if (ts3Functions.getErrorMessage(error, &errorMsg) != ERROR_ok) {
+				ts3Functions.logMessage(errorMsg, LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+				ts3Functions.freeMemory(errorMsg);
+			}
+		}
+
+		pttLastValue = status;
+	}
 }
 #pragma endregion
 
@@ -319,6 +367,15 @@ bool GameDataReader::readPlayers(const INT64 playerCount) {
 		shared_ptr<Radio> selectedRadio = getRadio(radioPosition);
 		readPlayer->setRadio(selectedRadio);
 	}
+
+	//Handel radio push to talk for self player
+	shared_ptr<Radio> selfPlayersRadio = players[selfGameID]->getRadio();
+	if (selfPlayersRadio) {
+		setPttStatus(selfPlayersRadio->isBroadcasting());
+	} else {
+		setPttStatus(false);
+	}
+
 
 	//return true if all reads good
 	return true;
