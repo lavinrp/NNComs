@@ -144,7 +144,6 @@ int ts3plugin_init() {
 
 	gameDataReader = new GameDataReader(ts3Functions);
 	gameDataReader->begin();
-
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
 	 * the plugin again, avoiding the show another dialog by the client telling the user the plugin failed to load.
@@ -309,6 +308,43 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
 }
 #pragma endregion
+
+/************************************debug*******************************************/
+int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
+	printf("PLUGIN: onTextMessageEvent %llu %d %d %s %s %d\n", (long long unsigned int)serverConnectionHandlerID, targetMode, fromID, fromName, message, ffIgnored);
+
+	/* Friend/Foe manager has ignored the message, so ignore here as well. */
+	if (ffIgnored) {
+		return 0; /* Client will ignore the message anyways, so return value here doesn't matter */
+	}
+
+	/* Example code: Autoreply to sender */
+	/* Disabled because quite annoying, but should give you some ideas what is possible here */
+	/* Careful, when two clients use this, they will get banned quickly... */
+	anyID myID;
+	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+		return 0;
+	}
+
+	if (strcmp("SetID", message) == 0) {
+		ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, 3);
+
+		ts3Functions.flushClientSelfUpdates(serverConnectionHandlerID, NULL);
+
+	}
+	//if (fromID != myID) {  /* Don't reply when source is own client */
+	//	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, "Text message back!", fromID, NULL) != ERROR_ok) {
+	//		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	//	}
+	//}
+#if 0
+	}
+	{
+#endif
+
+	return 0;  /* 0 = handle normally, 1 = client will ignore the text message */
+}
 
 
 /****************************** Optional functions ********************************/
@@ -867,34 +903,6 @@ int ts3plugin_onServerErrorEvent(uint64 serverConnectionHandlerID, const char* e
 void ts3plugin_onServerStopEvent(uint64 serverConnectionHandlerID, const char* shutdownMessage) {
 }
 
-int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
-    printf("PLUGIN: onTextMessageEvent %llu %d %d %s %s %d\n", (long long unsigned int)serverConnectionHandlerID, targetMode, fromID, fromName, message, ffIgnored);
-
-	/* Friend/Foe manager has ignored the message, so ignore here as well. */
-	if(ffIgnored) {
-		return 0; /* Client will ignore the message anyways, so return value here doesn't matter */
-	}
-
-#if 0
-	{
-		/* Example code: Autoreply to sender */
-		/* Disabled because quite annoying, but should give you some ideas what is possible here */
-		/* Careful, when two clients use this, they will get banned quickly... */
-		anyID myID;
-		if(ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
-			ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-			return 0;
-		}
-		if(fromID != myID) {  /* Don't reply when source is own client */
-			if(ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, "Text message back!", fromID, NULL) != ERROR_ok) {
-				ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-			}
-		}
-	}
-#endif
-
-    return 0;  /* 0 = handle normally, 1 = client will ignore the text message */
-}
 
 void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
 	/* Demonstrate usage of getClientDisplayName */
