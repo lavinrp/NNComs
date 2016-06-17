@@ -27,6 +27,7 @@
 
 //Other Cpp includes
 #include <sstream>
+#include <string>
 
 //Custom includes
 #include "NncToTs.h"
@@ -601,37 +602,12 @@ const char* ts3plugin_infoTitle() {
  * "data" to NULL to have the client ignore the info data.
  */
 void ts3plugin_infoData(uint64 serverConnectionHandlerID, uint64 id, enum PluginItemType type, char** data) {
-	char* name;
 
-	/* For demonstration purpose, display the name of the currently selected server, channel or client. */
-	switch(type) {
-		case PLUGIN_SERVER:
-			if(ts3Functions.getServerVariableAsString(serverConnectionHandlerID, VIRTUALSERVER_NAME, &name) != ERROR_ok) {
-				printf("Error getting virtual server name\n");
-				return;
-			}
-			break;
-		case PLUGIN_CHANNEL:
-			if(ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, id, CHANNEL_NAME, &name) != ERROR_ok) {
-				printf("Error getting channel name\n");
-				return;
-			}
-			break;
-		case PLUGIN_CLIENT:
-			if(ts3Functions.getClientVariableAsString(serverConnectionHandlerID, (anyID)id, CLIENT_NICKNAME, &name) != ERROR_ok) {
-				printf("Error getting client nickname\n");
-				return;
-			}
-			break;
-		default:
-			printf("Invalid item type: %d\n", type);
-			data = NULL;  /* Ignore */
-			return;
-	}
-
+	int userGameID = 0;
+	ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, id, CLIENT_META_DATA, &userGameID);
+	string idString = to_string(userGameID);
 	*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
-	snprintf(*data, INFODATA_BUFSIZE, "The nickname is [I]\"%s\"[/I]", name);  /* bbCode is supported. HTML is not supported */
-	ts3Functions.freeMemory(name);
+	snprintf(*data, INFODATA_BUFSIZE, "The ID is [I]\"%s\"[/I]", idString);  /* bbCode is supported. HTML is not supported */
 }
 
 /* Required to release the memory for parameter "data" allocated in ts3plugin_infoData and ts3plugin_initMenus */
