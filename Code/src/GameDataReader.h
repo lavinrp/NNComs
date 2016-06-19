@@ -65,9 +65,9 @@ public:
 	//Member functions
 	void begin();
 
-protected:
 	//reading functions
 	void collectGameData();
+protected:
 
 	bool connectToPipe();
 

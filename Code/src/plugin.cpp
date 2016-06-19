@@ -144,6 +144,8 @@ int ts3plugin_init() {
 
 	gameDataReader = new GameDataReader(ts3Functions);
 	gameDataReader->begin();
+
+
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
 	 * the plugin again, avoiding the show another dialog by the client telling the user the plugin failed to load.

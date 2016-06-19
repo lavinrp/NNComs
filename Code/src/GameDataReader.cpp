@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "ts3_functions.h"
 #include "teamspeak/public_errors.h"
 #include "plugin_definitions.h"
@@ -313,7 +315,7 @@ bool GameDataReader::readRadios(const INT64 radioCount) {
 	}
 
 	//crop radios vector to fit new number of radios
-	if (radioCount < radios.size()) {
+	if ((unsigned long long)radioCount < radios.size()) {
 		//erase radios at position radioCount to end
 		radios.erase(radios.begin() + radioCount, radios.end());
 	}
@@ -403,6 +405,7 @@ void GameDataReader::collectGameData() {
 /*begin
 starts thread in charge of pipe connection and reading*/
 void GameDataReader::begin() {
-	thread(collectGameData);
+	thread (&GameDataReader::collectGameData, this);
 }
 #pragma endregion
+
