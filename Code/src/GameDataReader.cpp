@@ -403,6 +403,7 @@ void GameDataReader::collectGameData() {
 /*begin
 starts thread in charge of pipe connection and reading*/
 void GameDataReader::begin() {
-	thread(collectGameData);
+		thread readingThread(&GameDataReader::collectGameData, this);
+		readingThread.detach();
 }
 #pragma endregion
