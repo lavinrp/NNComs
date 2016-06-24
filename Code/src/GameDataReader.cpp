@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "ts3_functions.h"
 #include "teamspeak/public_errors.h"
 #include "plugin_definitions.h"
@@ -151,17 +153,17 @@ connects pipeHandle to the pipe with a name defined by pipeName
 @return: true if the connection is successful. Returns false otherwise.*/
 bool GameDataReader::connectToPipe() {
 
-	//create file
-	pipeHandle = CreateFile(
-		pipeName,
-		GENERIC_READ,
-		FILE_SHARE_READ | FILE_SHARE_WRITE,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
-
 	while (true) {
+		//create file
+		pipeHandle = CreateFile(
+			pipeName,
+			GENERIC_READ,
+			FILE_SHARE_READ | FILE_SHARE_WRITE,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL);
+
 		//pipe found break connection loop
 		if (pipeHandle != INVALID_HANDLE_VALUE) {
 			break;
@@ -230,6 +232,19 @@ bool GameDataReader::initializePlayer() {
 	ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, (int)buffer[0]);
 	ts3Functions.flushClientSelfUpdates(serverConnectionHandlerID, NULL);
 	selfGameID = (int)buffer[0];
+
+	//get myID
+	anyID myID;
+	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	}
+
+	//USE THIS FOR DEBUG IF YOU NEED IT
+	stringstream testOutput;
+	testOutput << "Server ID is: " << serverConnectionHandlerID << " the player ID is: " << buffer[0];
+	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
+		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	}
 
 	//good read. All data set.
 	return true;
@@ -391,12 +406,14 @@ void GameDataReader::collectGameData() {
 		//Connect to the game pipe
 		//will go on indefinitely until connection is established or an error occurs
 		bool connection = connectToPipe();
-		setConnectedStatus(connection);
+		//setConnectedStatus(connection);
 
-		//read from pipe until bad read
-		readFromPipe();
-		//set connectedStatus and begin connection process again after bad read
-		setConnectedStatus(false);
+		if (connection) {
+			//read from pipe until bad read
+			readFromPipe();
+			//set connectedStatus and begin connection process again after bad read
+			setConnectedStatus(false);
+		}
 	}
 }
 

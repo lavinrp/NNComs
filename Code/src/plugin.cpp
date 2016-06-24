@@ -197,6 +197,19 @@ void modifySamples(int channels, int channelToChange, short* samples, int sample
 /*Any necessary logic when the user changes channels or connects to a server*/
 void setNncServerIdOnMove(uint64 serverConnectionHandlerID) {
 	gameDataReader->setServerConnectionHandlerID(serverConnectionHandlerID);
+	//get myID
+	anyID myID;
+	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+		return;
+	}
+
+	//USE THIS FOR DEBUG IF YOU NEED IT
+	stringstream testOutput;
+	testOutput << "Server ID is: " << serverConnectionHandlerID;
+	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
+		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	}
 }
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
@@ -309,6 +322,32 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
 }
 #pragma endregion
+
+
+int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
+	printf("PLUGIN: onTextMessageEvent %llu %d %d %s %s %d\n", (long long unsigned int)serverConnectionHandlerID, targetMode, fromID, fromName, message, ffIgnored);
+
+	//get myID
+	anyID myID;
+	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+		return 1;
+	}
+
+	if (fromID != myID) {
+		int userGameID;
+		ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, myID, CLIENT_META_DATA, &userGameID);
+		string idString = to_string(userGameID);
+
+		//USE THIS FOR DEBUG IF YOU NEED IT
+		stringstream testOutput;
+		testOutput << "Game ID is: " << idString;
+		if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
+			ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+		}
+	
+	}
+}
 
 
 /****************************** Optional functions ********************************/
@@ -603,7 +642,7 @@ const char* ts3plugin_infoTitle() {
  */
 void ts3plugin_infoData(uint64 serverConnectionHandlerID, uint64 id, enum PluginItemType type, char** data) {
 
-	int userGameID = 0;
+	int userGameID;
 	ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, id, CLIENT_META_DATA, &userGameID);
 	string idString = to_string(userGameID);
 	*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
@@ -867,34 +906,6 @@ int ts3plugin_onServerErrorEvent(uint64 serverConnectionHandlerID, const char* e
 void ts3plugin_onServerStopEvent(uint64 serverConnectionHandlerID, const char* shutdownMessage) {
 }
 
-int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
-    printf("PLUGIN: onTextMessageEvent %llu %d %d %s %s %d\n", (long long unsigned int)serverConnectionHandlerID, targetMode, fromID, fromName, message, ffIgnored);
-
-	/* Friend/Foe manager has ignored the message, so ignore here as well. */
-	if(ffIgnored) {
-		return 0; /* Client will ignore the message anyways, so return value here doesn't matter */
-	}
-
-#if 0
-	{
-		/* Example code: Autoreply to sender */
-		/* Disabled because quite annoying, but should give you some ideas what is possible here */
-		/* Careful, when two clients use this, they will get banned quickly... */
-		anyID myID;
-		if(ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
-			ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-			return 0;
-		}
-		if(fromID != myID) {  /* Don't reply when source is own client */
-			if(ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, "Text message back!", fromID, NULL) != ERROR_ok) {
-				ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-			}
-		}
-	}
-#endif
-
-    return 0;  /* 0 = handle normally, 1 = client will ignore the text message */
-}
 
 void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
 	/* Demonstrate usage of getClientDisplayName */
