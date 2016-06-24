@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef NNC_EXPORT
+#define NNC_EXPORT __declspec(dllexport)
+#endif // !NNC_EXPORT
+
 #include <tuple>
 
 #include "UniversalConsts.h"
@@ -11,7 +15,7 @@
 typedef unsigned __int16 anyID;
 
 
-class NncToTs
+class NNC_EXPORT NncToTs
 {
 public:
 	//constructors / destructor

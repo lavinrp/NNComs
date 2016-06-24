@@ -1,10 +1,14 @@
 #pragma once
 
+#ifndef NNC_EXPORT
+#define NNC_EXPORT __declspec(dllexport)
+#endif // !NNC_EXPORT
+
 //the number of doubles that need to be passed by a game to create
 //a full Point3D
 const unsigned int DOUBLES_PER_POINT3D = 3;
 
-class Point3D
+class NNC_EXPORT Point3D
 {
 public:
 	//Constructors / destructor

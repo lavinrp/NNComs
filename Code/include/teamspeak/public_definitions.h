@@ -1,7 +1,11 @@
 #ifndef PUBLIC_DEFINITIONS_H
 #define PUBLIC_DEFINITIONS_H
 
-#include "teamlog/logtypes.h"
+#ifndef NNC_EXPORT
+#define NNC_EXPORT __declspec(dllexport)
+#endif // !NNC_EXPORT
+
+#include "../include/teamlog/logtypes.h"
 
 //limited length, measured in characters
 #define TS3_MAX_SIZE_CHANNEL_NAME 40
@@ -38,13 +42,13 @@
 	#endif
 #endif
 
-enum TalkStatus {
+enum NNC_EXPORT TalkStatus {
 	STATUS_NOT_TALKING = 0,
 	STATUS_TALKING = 1,
 	STATUS_TALKING_WHILE_DISABLED = 2,
 };
 
-enum CodecType {
+enum NNC_EXPORT CodecType {
 	CODEC_SPEEX_NARROWBAND = 0,   //mono,   16bit,  8kHz, bitrate dependent on the quality setting
 	CODEC_SPEEX_WIDEBAND,         //mono,   16bit, 16kHz, bitrate dependent on the quality setting
 	CODEC_SPEEX_ULTRAWIDEBAND,    //mono,   16bit, 32kHz, bitrate dependent on the quality setting
@@ -53,45 +57,45 @@ enum CodecType {
 	CODEC_OPUS_MUSIC,             //stereo, 16bit, 48khz, bitrate dependent on the quality setting, optimized for music
 };
 
-enum CodecEncryptionMode {
+enum NNC_EXPORT CodecEncryptionMode {
 	CODEC_ENCRYPTION_PER_CHANNEL = 0,
 	CODEC_ENCRYPTION_FORCED_OFF,
 	CODEC_ENCRYPTION_FORCED_ON,
 };
 
-enum TextMessageTargetMode {
+enum NNC_EXPORT TextMessageTargetMode {
 	TextMessageTarget_CLIENT=1,
 	TextMessageTarget_CHANNEL,
 	TextMessageTarget_SERVER,
 	TextMessageTarget_MAX
 };
 
-enum MuteInputStatus {
+enum NNC_EXPORT MuteInputStatus {
 	MUTEINPUT_NONE = 0,
 	MUTEINPUT_MUTED,
 };
 
-enum MuteOutputStatus {
+enum NNC_EXPORT MuteOutputStatus {
 	MUTEOUTPUT_NONE = 0,
 	MUTEOUTPUT_MUTED,
 };
 
-enum HardwareInputStatus {
+enum NNC_EXPORT HardwareInputStatus {
 	HARDWAREINPUT_DISABLED = 0,
 	HARDWAREINPUT_ENABLED,
 };
 
-enum HardwareOutputStatus {
+enum NNC_EXPORT HardwareOutputStatus {
 	HARDWAREOUTPUT_DISABLED = 0,
 	HARDWAREOUTPUT_ENABLED,
 };
 
-enum InputDeactivationStatus {
+enum NNC_EXPORT InputDeactivationStatus {
 	INPUT_ACTIVE = 0,
 	INPUT_DEACTIVATED = 1,
 };
 
-enum ReasonIdentifier {
+enum NNC_EXPORT ReasonIdentifier {
 	REASON_NONE                              = 0,  //no reason data
 	REASON_MOVED                             = 1,  //{SectionInvoker}
 	REASON_SUBSCRIPTION                      = 2,  //no reason data
@@ -106,7 +110,7 @@ enum ReasonIdentifier {
 	REASON_CLIENTDISCONNECT_SERVER_SHUTDOWN  = 11,  //reasonmsg=reason
 };
 
-enum ChannelProperties {
+enum NNC_EXPORT ChannelProperties {
 	CHANNEL_NAME = 0,                       //Available for all channels that are "in view", always up-to-date
 	CHANNEL_TOPIC,                          //Available for all channels that are "in view", always up-to-date
 	CHANNEL_DESCRIPTION,                    //Must be requested (=> requestChannelDescription)
@@ -127,7 +131,7 @@ enum ChannelProperties {
 	CHANNEL_ENDMARKER,
 };
 
-enum ClientProperties {
+enum NNC_EXPORT ClientProperties {
 	CLIENT_UNIQUE_IDENTIFIER = 0,           //automatically up-to-date for any client "in view", can be used to identify this particular client installation
 	CLIENT_NICKNAME,                        //automatically up-to-date for any client "in view"
 	CLIENT_VERSION,                         //for other clients than ourself, this needs to be requested (=> requestClientVariables)
@@ -152,7 +156,7 @@ enum ClientProperties {
 	CLIENT_ENDMARKER,
 };
 
-enum VirtualServerProperties {
+enum NNC_EXPORT VirtualServerProperties {
 	VIRTUALSERVER_UNIQUE_IDENTIFIER = 0,             //available when connected, can be used to identify this particular server installation
 	VIRTUALSERVER_NAME,                              //available and always up-to-date when connected
 	VIRTUALSERVER_WELCOMEMESSAGE,                    //available when connected,  (=> requestServerVariables)
@@ -168,7 +172,7 @@ enum VirtualServerProperties {
 	VIRTUALSERVER_ENDMARKER,
 };
 
-enum ConnectionProperties {
+enum NNC_EXPORT ConnectionProperties {
 	CONNECTION_PING = 0,                                        //average latency for a round trip through and back this connection
 	CONNECTION_PING_DEVIATION,                                  //standard deviation of the above average latency
 	CONNECTION_CONNECTED_TIME,                                  //how long the connection exists already
@@ -228,9 +232,9 @@ typedef struct {
     float x;        /* X co-ordinate in 3D space. */
     float y;        /* Y co-ordinate in 3D space. */
     float z;        /* Z co-ordinate in 3D space. */
-} TS3_VECTOR;
+} NNC_EXPORT TS3_VECTOR;
 
-enum GroupWhisperType {
+enum NNC_EXPORT GroupWhisperType {
 	GROUPWHISPERTYPE_SERVERGROUP        = 0,
 	GROUPWHISPERTYPE_CHANNELGROUP       = 1,
 	GROUPWHISPERTYPE_CHANNELCOMMANDER   = 2,
@@ -238,7 +242,7 @@ enum GroupWhisperType {
 	GROUPWHISPERTYPE_ENDMARKER,
 };
 
-enum GroupWhisperTargetMode {
+enum NNC_EXPORT GroupWhisperTargetMode {
 	GROUPWHISPERTARGETMODE_ALL                   = 0,
 	GROUPWHISPERTARGETMODE_CURRENTCHANNEL        = 1,
 	GROUPWHISPERTARGETMODE_PARENTCHANNEL         = 2,
@@ -249,19 +253,19 @@ enum GroupWhisperTargetMode {
 	GROUPWHISPERTARGETMODE_ENDMARKER,
 };
 
-enum MonoSoundDestination{ 
+enum NNC_EXPORT MonoSoundDestination{
   MONO_SOUND_DESTINATION_ALL                  =0, /* Send mono sound to all available speakers */
   MONO_SOUND_DESTINATION_FRONT_CENTER         =1, /* Send mono sound to front center speaker if available */
   MONO_SOUND_DESTINATION_FRONT_LEFT_AND_RIGHT =2  /* Send mono sound to front left/right speakers if available */
 };
 
-enum SecuritySaltOptions {
+enum NNC_EXPORT SecuritySaltOptions {
 	SECURITY_SALT_CHECK_NICKNAME  = 1, /* put nickname into security hash */
 	SECURITY_SALT_CHECK_META_DATA = 2  /* put (game)meta data into security hash */
 };
 
 /*this enum is used to disable client commands on the server*/
-enum ClientCommand{
+enum NNC_EXPORT ClientCommand{
 	CLIENT_COMMAND_requestConnectionInfo        =  0,
 	CLIENT_COMMAND_requestClientMove            =  1,
 	CLIENT_COMMAND_requestXXMuteClients         =  2,
@@ -279,14 +283,14 @@ enum ClientCommand{
 };
 
 /* Access Control List*/
-enum ACLType{
+enum NNC_EXPORT ACLType{
 	ACL_NONE       = 0,
 	ACL_WHITE_LIST = 1,
 	ACL_BLACK_LIST = 2
 };
 
 /* file transfer actions*/
-enum FTAction{
+enum NNC_EXPORT FTAction{
 	FT_INIT_SERVER  = 0,
 	FT_INIT_CHANNEL = 1,
 	FT_UPLOAD       = 2,
@@ -299,7 +303,7 @@ enum FTAction{
 };
 
 /* file transfer status */
-enum FileTransferState {
+enum NNC_EXPORT FileTransferState {
 	FILETRANSFER_INITIALISING = 0,
 	FILETRANSFER_ACTIVE,
 	FILETRANSFER_FINISHED,
@@ -313,25 +317,25 @@ enum {
 
 /* some structs to handle variables in callbacks */
 #define MAX_VARIABLES_EXPORT_COUNT 64
-struct VariablesExportItem{
+struct NNC_EXPORT VariablesExportItem{
 	unsigned char itemIsValid;    /* This item has valid values. ignore this item if 0 */
 	unsigned char proposedIsSet;  /* The value in proposed is set. if 0 ignore proposed */
 	const char* current;          /* current value (stored in memory) */
 	const char* proposed;         /* New value to change to (const, so no updates please) */
 };
 
-struct VariablesExport{
+struct NNC_EXPORT VariablesExport{
 	struct VariablesExportItem items[MAX_VARIABLES_EXPORT_COUNT];
 };
 
-struct ClientMiniExport{
+struct NNC_EXPORT ClientMiniExport{
 	anyID ID;
 	uint64 channel;
 	const char* ident;
 	const char* nickname;
 };
 
-struct TransformFilePathExport{
+struct NNC_EXPORT TransformFilePathExport{
 	uint64 channel;
 	const char* filename;
 	int action;
@@ -339,13 +343,13 @@ struct TransformFilePathExport{
 	int channelPathMaxSize;
 };
 
-struct TransformFilePathExportReturns{
+struct NNC_EXPORT TransformFilePathExportReturns{
 	char* transformedFileName;
 	char* channelPath;
 	int logFileAction;
 };
 
-struct FileTransferCallbackExport{
+struct NNC_EXPORT FileTransferCallbackExport{
 	anyID clientID;
 	anyID transferID;
 	anyID remoteTransferID;

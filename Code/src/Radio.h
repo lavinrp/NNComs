@@ -1,10 +1,15 @@
 #pragma once
+
+#ifndef NNC_EXPORT
+#define NNC_EXPORT __declspec(dllexport)
+#endif // !NNC_EXPORT
+
 #include "VoiceSource.h"
 
 //The number of doubles that need to be passed by a game to create a full Radio
 const unsigned int DOUBLES_PER_RADIO = DOUBLES_PER_VOICE_SOURCE + 4;
 
-class Radio :
+class NNC_EXPORT Radio :
 	public VoiceSource
 {
 public:

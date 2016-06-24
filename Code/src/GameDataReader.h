@@ -1,4 +1,9 @@
 #pragma once
+
+#ifndef NNC_EXPORT
+#define NNC_EXPORT __declspec(dllexport)
+#endif // !NNC_EXPORT
+
 #include <string>
 #include <windows.h>
 #include <iostream>
@@ -8,8 +13,8 @@
 #include <vector>
 #include <memory>
 
-#include "teamspeak/public_definitions.h"
-#include "ts3_functions.h"
+#include "../include/teamspeak/public_definitions.h"
+#include "../include/ts3_functions.h"
 
 #include "UniversalConsts.h"
 #include "Player.h"
@@ -26,14 +31,14 @@ const unsigned int VOICE_SOURCE_COUNT_BUFFER_SEIZE = 2;
 /*VoiceSourceCounts
 Stores the number of radios and players that will be in
 a particular read of GameDataReader*/
-struct VoiceSourceCounts {
+struct NNC_EXPORT VoiceSourceCounts {
 	//number of radios in the next read
 	INT64 radioCount;
 	//number of players in the next read
 	INT64 playerCount;
 };
 
-class GameDataReader
+class NNC_EXPORT GameDataReader
 {
 public:
 	//Constructors / destructor

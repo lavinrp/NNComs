@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef NNC_EXPORT
+#define NNC_EXPORT __declspec(dllexport)
+#endif // !NNC_EXPORT
+
 #include<vector>
 #include<memory>
 
@@ -17,7 +21,7 @@ typedef unsigned __int16 anyID;
 //The number of doubles that need to be passed by a game to create a full Player
 const unsigned int DOUBLES_PER_PLAYER = DOUBLES_PER_VOICE_SOURCE + 2;
 
-class Player :
+class NNC_EXPORT Player :
 	public VoiceSource {
 public:
 	//constructors / destructor
