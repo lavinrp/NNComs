@@ -223,28 +223,41 @@ bool GameDataReader::initializePlayer() {
 			&bytesRead,				//bytes read
 			NULL);					//Overlapped
 
-		//return on bad read
-		if (!readResult) {
-			return false;
-		}
-
-	//set metadata to value read from pipe
-	ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, (int)buffer[0]);
-	ts3Functions.flushClientSelfUpdates(serverConnectionHandlerID, NULL);
-	selfGameID = (int)buffer[0];
-
 	//get myID
 	anyID myID;
 	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
 		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
 	}
 
-	//USE THIS FOR DEBUG IF YOU NEED IT
+	//debug out
 	stringstream testOutput;
-	testOutput << "Server ID is: " << serverConnectionHandlerID << " the player ID is: " << buffer[0];
+	testOutput << "right volume: " << readResult;
 	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
 		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
 	}
+
+	//return on bad read
+	if (!readResult) {
+		return false;
+	}
+
+	//set metadata to value read from pipe
+	ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, (int)buffer[0]);
+	ts3Functions.flushClientSelfUpdates(serverConnectionHandlerID, NULL);
+	selfGameID = (int)buffer[0];
+
+	////get myID
+	//anyID myID;
+	//if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+	//	ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	//}
+
+	////USE THIS FOR DEBUG IF YOU NEED IT
+	//stringstream testOutput;
+	//testOutput << "Server ID is: " << serverConnectionHandlerID << " the player ID is: " << buffer[0];
+	//if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
+	//	ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	//}
 
 	//good read. All data set.
 	return true;
