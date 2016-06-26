@@ -161,7 +161,7 @@ bool GameDataReader::connectToPipe() {
 			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			NULL,
 			OPEN_EXISTING,
-			FILE_ATTRIBUTE_NORMAL,
+			0,
 			NULL);
 
 		//pipe found break connection loop
@@ -212,6 +212,21 @@ Sets current users Teamspeak metadata to the value passed by
 @return: true if data successfully set. False otherwise.
 */
 bool GameDataReader::initializePlayer() {
+
+	//get myID
+	anyID myID;
+	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	}
+
+	//debug out
+	stringstream testOutput;
+	testOutput << "works to here.";
+	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
+		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	}
+
+
 	//initialize pipe variables
 	INT64 buffer[INIT_BUFFER_SIZE];
 	DWORD bytesRead = 0;
@@ -223,18 +238,7 @@ bool GameDataReader::initializePlayer() {
 			&bytesRead,				//bytes read
 			NULL);					//Overlapped
 
-	//get myID
-	anyID myID;
-	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
-		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-	}
-
-	//debug out
-	stringstream testOutput;
-	testOutput << "right volume: " << readResult;
-	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
-		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-	}
+	
 
 	//return on bad read
 	if (!readResult) {
