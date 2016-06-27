@@ -89,7 +89,7 @@ shared_ptr<Radio> GameDataReader::getRadio(unsigned int position) {
 /*setServerConnectionHandlerID
 sets the serverConnectionHandlerID
 @param serverConnectionHandlerID: new serverConnectionHandlerID*/
-void GameDataReader::setServerConnectionHandlerID(const int serverConnectionHandlerID) {
+void GameDataReader::setServerConnectionHandlerID(const uint64 serverConnectionHandlerID) {
 	this->serverConnectionHandlerID = serverConnectionHandlerID;
 }
 
