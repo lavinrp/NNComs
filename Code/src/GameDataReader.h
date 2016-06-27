@@ -33,9 +33,9 @@ Stores the number of radios and players that will be in
 a particular read of GameDataReader*/
 struct NNC_EXPORT VoiceSourceCounts {
 	//number of radios in the next read
-	INT64 radioCount;
+	UINT64 radioCount;
 	//number of players in the next read
-	INT64 playerCount;
+	UINT64 playerCount;
 };
 
 class NNC_EXPORT GameDataReader

@@ -15,7 +15,7 @@ voiceLevel defaults to 0
 @param z: z position of the player*/
 Player::Player(double x, double y, double z) :
 	VoiceSource(x, y, z) {
-	radio = nullptr;
+	radio = shared_ptr<Radio>();
 	tsID = -1; //TODO(Ryan Lavin): determine if this is a good default value. -6/11/2016
 }
 
@@ -35,7 +35,7 @@ shared_ptr<Radio> Player::getRadio() {
 
 /*setRadio
 Sets the players currently equipped radio
-@param radio: pointer to the players radio. Set to nullptr if player has no radio*/
+@param radio: pointer to the players radio. Set to null shared_ptr if player has no radio*/
 void Player::setRadio(shared_ptr<Radio> radio) {
 	this->radio = radio;
 }

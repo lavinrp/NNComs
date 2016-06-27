@@ -61,7 +61,7 @@ void GameDataReader::setConnectedStatus(bool status) {
 /*getPlayer
 finds the player with the passed gameID
 @param gameID: in game ID of the player to find
-@return: Return a shared_ptr to the player with the passed gameID if one exists. Return nullptr otherwise.*/
+@return: Return a shared_ptr to the player with the passed gameID if one exists. Return null shared_ptr otherwise.*/
 shared_ptr<Player> GameDataReader::getPlayer(GameID gameID) {
 	unordered_map<GameID, shared_ptr<Player>>::iterator playerIterator;
 	playerIterator = players.find(gameID);
@@ -69,27 +69,27 @@ shared_ptr<Player> GameDataReader::getPlayer(GameID gameID) {
 	if ( playerIterator != players.end() ) {
 		return playerIterator->second;
 	} else {
-		return nullptr;
+		return shared_ptr<Player>();
 	}
 }
 
 /*getRadio
 returns the requested radio
 @param position: the position of the radio to return
-@return: Pointer to the radio at the passed position in GameDataReaders radio vector. nullptr if
+@return: Pointer to the radio at the passed position in GameDataReaders radio vector. null shared_ptr if
 the requested radio does not exist.*/
 shared_ptr<Radio> GameDataReader::getRadio(unsigned int position) {
 	if (radios.size() > position) {
 		return radios[position];
 	} else {
-		return nullptr;
+		return shared_ptr<Radio>();
 	}
 }
 
 /*setServerConnectionHandlerID
 sets the serverConnectionHandlerID
 @param serverConnectionHandlerID: new serverConnectionHandlerID*/
-void GameDataReader::setServerConnectionHandlerID(const uint64 serverConnectionHandlerID) {
+void GameDataReader::setServerConnectionHandlerID(const int serverConnectionHandlerID) {
 	this->serverConnectionHandlerID = serverConnectionHandlerID;
 }
 
@@ -213,32 +213,16 @@ Sets current users Teamspeak metadata to the value passed by
 */
 bool GameDataReader::initializePlayer() {
 
-	//get myID
-	anyID myID;
-	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
-		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-	}
-
-	//debug out
-	stringstream testOutput;
-	testOutput << "works to here.";
-	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
-		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-	}
-
-
 	//initialize pipe variables
-	INT64 buffer[INIT_BUFFER_SIZE];
+	double buffer[INIT_BUFFER_SIZE];
 	DWORD bytesRead = 0;
 	bool readResult = false;
 		readResult = ReadFile(
 			pipeHandle,				//pipe
 			buffer,					//Write location
-			sizeof(INT64),			//number of bytes to read
+			sizeof(double),			//number of bytes to read
 			&bytesRead,				//bytes read
 			NULL);					//Overlapped
-
-	
 
 	//return on bad read
 	if (!readResult) {
@@ -273,22 +257,22 @@ reads data from the pipe to determine how many of each VoiceSource will be in th
 be in the next read*/
 VoiceSourceCounts GameDataReader::readVoiceSourceCounts() {
 	//read enough values to fill VoiceSourceCounts
-	INT64 buffer[VOICE_SOURCE_COUNT_BUFFER_SEIZE];
+	double buffer[VOICE_SOURCE_COUNT_BUFFER_SEIZE];
 	DWORD bytesRead = 0;
 	bool readResult = false;
 	while (!readResult) {
 		readResult = ReadFile(
-			pipeHandle,					//pipe
-			buffer,						//Write location
-			sizeof(VoiceSourceCounts),	//number of bytes to read
-			&bytesRead,					//bytes read
-			NULL);						//Overlapped
+			pipeHandle,											//pipe
+			buffer,												//Write location
+			VOICE_SOURCE_COUNT_BUFFER_SEIZE * sizeof(double),	//number of bytes to read
+			&bytesRead,											//bytes read
+			NULL);												//Overlapped
 	}
 
 	//Create and return a VoiceSourceCounts with the data from the pipe
 	VoiceSourceCounts voiceSourceCounts;
-	voiceSourceCounts.playerCount = buffer[0];
-	voiceSourceCounts.radioCount = buffer[1];
+	voiceSourceCounts.playerCount = (UINT64)buffer[0];
+	voiceSourceCounts.radioCount = (UINT64)buffer[1];
 
 	return voiceSourceCounts;
 }
@@ -408,7 +392,6 @@ bool GameDataReader::readPlayers(const INT64 playerCount) {
 		setPttStatus(false);
 	}
 
-
 	//return true if all reads good
 	return true;
 }
@@ -423,7 +406,7 @@ void GameDataReader::collectGameData() {
 		//Connect to the game pipe
 		//will go on indefinitely until connection is established or an error occurs
 		bool connection = connectToPipe();
-		//setConnectedStatus(connection);
+		setConnectedStatus(connection);
 
 		if (connection) {
 			//read from pipe until bad read
