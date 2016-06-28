@@ -97,29 +97,34 @@ void NncToTs::getNncSoundData() {
 	shared_ptr<Player> otherPlayer = gameDataReader->getPlayer(clientGameID);
 	shared_ptr<Player> selfPlayer = gameDataReader->getPlayer(gameDataReader->getSelfGameID());
 
-	//Find number of audible sources and their distances from the selfPlayer
-	vector<shared_ptr<VoiceSource>> audibleSources;
-	getAudibleSources(selfPlayer, otherPlayer, audibleSources);
-	sources = (int)audibleSources.size();
+	if (selfPlayer && otherPlayer) {
+		//Find number of audible sources and their distances from the selfPlayer
+		vector<shared_ptr<VoiceSource>> audibleSources;
+		getAudibleSources(selfPlayer, otherPlayer, audibleSources);
+		sources = (int)audibleSources.size();
 
-	//only calculate sound modifications if there are any audible sources
-	if (sources) {
-		//Find left and right volumes for each source
-		leftVolumes = new float[sources];
-		rightVolumes = new float[sources];
-		for (int i = 0; i < sources; i++) {
-			//TODO (Ryan Lavin): the comments of left and right volume indicate that the following statements are backwards. I don't believe them. Check this -6/13/2016
-			leftVolumes[i] = (float)selfPlayer->leftVolume(*audibleSources[i]);
-			rightVolumes[i] = (float)selfPlayer->rightVolume(*audibleSources[i]);
-		}
+		//only calculate sound modifications if there are any audible sources
+		if (sources) {
+			//Find left and right volumes for each source
+			leftVolumes = new float[sources];
+			rightVolumes = new float[sources];
+			for (int i = 0; i < sources; i++) {
+				//TODO (Ryan Lavin): the comments of left and right volume indicate that the following statements are backwards. I don't believe them. Check this -6/13/2016
+				leftVolumes[i] = (float)selfPlayer->leftVolume(*(audibleSources[i]));
+				rightVolumes[i] = (float)selfPlayer->rightVolume(*(audibleSources[i]));
+			}
 
-		//Find distortions of each source
-		distortions = new short[sources];
-		//TODO(Ryan Lavin): if this array is not initialized it creates cool static. Use this. - 5/22/2016
-		for (int i = 0; i < sources; ++i) {
-			distortions[i] = audibleSources[i]->nextDistortion(1);
+			//Find distortions of each source
+			distortions = new short[sources];
+			//TODO(Ryan Lavin): if this array is not initialized it creates cool static. Use this. - 5/22/2016
+			for (int i = 0; i < sources; ++i) {
+				distortions[i] = audibleSources[i]->nextDistortion(1);
+			}
 		}
+	} else {
+		sources = 0;
 	}
+
 
 	//allow game data reader to continue reading game data
 	gameDataReader->gameDataMutex.unlock();

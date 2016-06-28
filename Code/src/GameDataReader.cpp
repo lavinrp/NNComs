@@ -25,7 +25,7 @@ GameDataReader::GameDataReader(const TS3Functions ts3Functions, const uint64 ser
 /*Constructor for game data reader. server connection handler 
 defaults to 0 and must be set at a later time.
 @param ts3Functions: pointer functions from the ts3 plugin SDK*/
-GameDataReader::GameDataReader(const TS3Functions ts3Functions) : GameDataReader(ts3Functions, 0) {}
+GameDataReader::GameDataReader(const TS3Functions ts3Functions) : GameDataReader(ts3Functions, 1) {}
 
 GameDataReader::~GameDataReader() {
 	//radio memory automatically freed

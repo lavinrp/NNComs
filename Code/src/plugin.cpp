@@ -197,19 +197,6 @@ void modifySamples(int channels, int channelToChange, short* samples, int sample
 /*Any necessary logic when the user changes channels or connects to a server*/
 void setNncServerIdOnMove(uint64 serverConnectionHandlerID) {
 	gameDataReader->setServerConnectionHandlerID(serverConnectionHandlerID);
-	//get myID
-	anyID myID;
-	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
-		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-		return;
-	}
-
-	//USE THIS FOR DEBUG IF YOU NEED IT
-	stringstream testOutput;
-	testOutput << "Server ID is: " << serverConnectionHandlerID;
-	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
-		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-	}
 }
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
@@ -220,12 +207,13 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 	}
 
 	//get gameID of the client
-	int* clientGameIDPointer;
-	ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, clientID, CLIENT_META_DATA, clientGameIDPointer);
-	GameID clientGameID = (GameID)(*clientGameIDPointer);
+	int clientGameIDPointer;
+	ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, clientID, CLIENT_META_DATA, &clientGameIDPointer);
+	GameID clientGameID = (GameID)clientGameIDPointer;
 
 	//initialize ts values
 	NncToTs nncData(clientID, clientGameID, gameDataReader);
+
 
 	//Get sound modification values from NNC
 	nncData.getNncSoundData();
@@ -324,30 +312,51 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 #pragma endregion
 
 
+#pragma region debug help
+//get myID
+//anyID myID;
+//if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+//	ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+//	return;
+//}
+
+////USE THIS FOR DEBUG IF YOU NEED IT
+//stringstream testOutput;
+//testOutput << "right volume: " << rightVolumes[0] << "\n" << "left volume: " << leftVolumes[0];
+//if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
+//	ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+//}
+
+
 int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
-	printf("PLUGIN: onTextMessageEvent %llu %d %d %s %s %d\n", (long long unsigned int)serverConnectionHandlerID, targetMode, fromID, fromName, message, ffIgnored);
+	//printf("PLUGIN: onTextMessageEvent %llu %d %d %s %s %d\n", (long long unsigned int)serverConnectionHandlerID, targetMode, fromID, fromName, message, ffIgnored);
 
-	//get myID
-	anyID myID;
-	if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
-		ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-		return 1;
-	}
+	////get myID
+	//anyID myID;
+	//if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+	//	ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	//	return 1;
+	//}
 
-	if (fromID != myID) {
-		int userGameID;
-		ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, myID, CLIENT_META_DATA, &userGameID);
-		string idString = to_string(userGameID);
+	//if (fromID != myID) {
+	//	int userGameID;
+	//	ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, myID, CLIENT_META_DATA, &userGameID);
+	//	string idString = to_string(userGameID);
 
-		//USE THIS FOR DEBUG IF YOU NEED IT
-		stringstream testOutput;
-		testOutput << "Game ID is: " << idString;
-		if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
-			ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-		}
-	
-	}
+	//	//USE THIS FOR DEBUG IF YOU NEED IT
+	//	stringstream testOutput;
+	//	testOutput << "Game ID is: " << idString;
+	//	if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, testOutput.str().c_str(), myID, NULL) != ERROR_ok) {
+	//		ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+	//	}
+	//
+	//}
+
+	return 0;
 }
+#pragma endregion
+
+
 
 
 /****************************** Optional functions ********************************/
