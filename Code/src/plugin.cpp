@@ -220,7 +220,7 @@ void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID,
 	int sources = nncData.getSources();
 
 	//unmute the client if it can be heard
-	if (sources && clientGameID) {
+	if (sources) {
 		int muted = 0;
 		ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, clientID, CLIENT_IS_MUTED, &muted);
 		if ((bool)muted) {
