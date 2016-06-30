@@ -142,6 +142,18 @@ void GameDataReader::setPttStatus(bool status) {
 		pttLastValue = status;
 	}
 }
+
+/*Determines if the GameDataReader will continue to collect data
+@param continueCollection: collection continues if true, stops if false*/
+void GameDataReader::setContinueDataCollection(bool continueCollection) {
+	continueDataCollection = continueCollection;
+}
+
+/*Determines if the GameDataReader will continue to collect data.
+@return: True if data collection should continue, false otherwise.*/
+bool GameDataReader::getContinueDataCollection() {
+	return continueDataCollection;
+}
 #pragma endregion
 
 #pragma region Member Functions
@@ -189,7 +201,7 @@ void GameDataReader::readFromPipe() {
 	bool goodData = initializePlayer();
 
 	//continually read from pipe
-	while (goodData) {
+	while (goodData && continueDataCollection) {
 		//find the number of each type of voice source to read
 		VoiceSourceCounts voiceSourceCounts = readVoiceSourceCounts();
 

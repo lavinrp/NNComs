@@ -53,6 +53,9 @@ public:
 	bool isConnected();
 	void setServerConnectionHandlerID(const uint64 serverConnectionHandlerID);
 
+	void setContinueDataCollection(bool continueCollection);
+	bool getContinueDataCollection();
+
 	mutex gameDataMutex;
 
 		//player

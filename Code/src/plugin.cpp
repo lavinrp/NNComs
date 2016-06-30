@@ -155,6 +155,7 @@ int ts3plugin_init() {
 void ts3plugin_shutdown() {
     /* Your plugin cleanup code here */
     printf("PLUGIN: shutdown\n");
+	gameDataReader->setContinueDataCollection(false);
 	delete gameDataReader;
 
 	/*
