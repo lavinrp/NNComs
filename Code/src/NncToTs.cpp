@@ -90,9 +90,7 @@ stores all required player data for the given client ID from NNComs
 @param distortions: array of audio distortions to apply to each emulated audio source*/
 void NncToTs::getNncSoundData() {
 	//ensure that game data reader does not change values while they are being used in calculations
-	while (!gameDataReader->gameDataMutex.try_lock()) {
-		this_thread::sleep_for(THREAD_WAIT);
-	}
+	gameDataReader->gameDataMutex.lock();
 
 	shared_ptr<Player> otherPlayer = gameDataReader->getPlayer(clientGameID);
 	shared_ptr<Player> selfPlayer = gameDataReader->getPlayer(gameDataReader->getSelfGameID());

@@ -50,9 +50,7 @@ Thread safe way to set connectedStatus
 set to false otherwise*/
 void GameDataReader::setConnectedStatus(bool status) {
 	//wait until the connected status can be modified
-	while (!connectedStatusMutex.try_lock()) {
-		this_thread::sleep_for(THREAD_WAIT);
-	}
+	connectedStatusMutex.lock();
 	//set and unlock connectedStatus
 	connectedStatus = status;
 	connectedStatusMutex.unlock();
@@ -196,9 +194,7 @@ void GameDataReader::readFromPipe() {
 		VoiceSourceCounts voiceSourceCounts = readVoiceSourceCounts();
 
 		//read and create players and radios
-		while (!gameDataMutex.try_lock() ){
-			this_thread::sleep_for(THREAD_WAIT);
-		}
+		gameDataMutex.lock();
 		bool radioSuccess = readRadios(voiceSourceCounts.radioCount);
 		bool playerSuccess = readPlayers(voiceSourceCounts.playerCount);
 		gameDataMutex.unlock();
