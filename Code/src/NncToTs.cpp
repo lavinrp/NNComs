@@ -107,9 +107,8 @@ void NncToTs::getNncSoundData() {
 			leftVolumes = new float[sources];
 			rightVolumes = new float[sources];
 			for (int i = 0; i < sources; i++) {
-				//TODO (Ryan Lavin): the comments of left and right volume indicate that the following statements are backwards. I don't believe them. Check this -6/13/2016
-				leftVolumes[i] = (float)selfPlayer->leftVolume(*(audibleSources[i]));
-				rightVolumes[i] = (float)selfPlayer->rightVolume(*(audibleSources[i]));
+				leftVolumes[i] = (float)(audibleSources[i])->leftVolume(*selfPlayer);
+				rightVolumes[i] = (float)(audibleSources[i])->rightVolume(*selfPlayer);
 			}
 
 			//Find distortions of each source

@@ -36,8 +36,12 @@ double VoiceSource::leftVolume(const Point3D& userPosition) {
 	//D = Angle
 	//C = distance
 	double dist = this->distance(userPosition);
-	double temp = M_PI * voiceLevel * voiceFalloffModifier * this->angle2D(userPosition);
-	return temp / (2 * dist * dist);
+	//only calculate audio change if the point3Ds are not at the same location
+	if (dist) {
+		double temp = M_PI * voiceLevel * voiceFalloffModifier * this->angle2D(userPosition);
+		return temp / (2 * dist * dist);
+	}
+	return 1;
 }
 
 //TODO (Ryan Lavin): I think this comment says this function is from the wrong perspective. Ensure that userPosition actually is the position of this user - 6/13/2016
@@ -54,10 +58,15 @@ double VoiceSource::rightVolume(const Point3D& userPosition) {
 	//B = voiceFalloffModifier
 	//D = Angle
 	//C = distance
-	double angle = this->angle2D(userPosition);
 	double dist = this->distance(userPosition);
-	double temp = (voiceLevel * voiceFalloffModifier * ((2 * M_PI) - angle));
-	return temp / (2 * M_PI * dist * dist);
+	
+	//only calculate audio change if the point3Ds are not at the same location
+	if (dist) {
+		double angle = this->angle2D(userPosition);
+		double temp = (voiceLevel * voiceFalloffModifier * ((2 * M_PI) - angle));
+		return temp / (2 * M_PI * dist * dist);
+	}
+	return 1;
 }
 
 /*nextDistortion
