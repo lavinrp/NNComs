@@ -237,6 +237,8 @@ bool GameDataReader::initializePlayer() {
 		return false;
 	}
 
+	selfGameID = buffer[0];
+
 	//set metadata to value read from pipe
 	ts3Functions.setClientSelfVariableAsInt(serverConnectionHandlerID, CLIENT_META_DATA, (int)buffer[0]);
 	ts3Functions.flushClientSelfUpdates(serverConnectionHandlerID, NULL);
